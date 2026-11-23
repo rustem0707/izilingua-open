@@ -1,0 +1,101 @@
+const FEEDBACK_TAB = 'Izilingua пікірлері';
+const FEEDBACK_HEADERS = ['Өтінім ID', 'Жіберілген уақыт', 'Тақырып', 'Пікір'];
+const FEEDBACK_CATEGORIES = ['Ұсыныс', 'Қате туралы хабар', 'Басқа'];
+
+// Google Sheets ішінен ашылған Apps Script редакторында бір рет орындаңыз.
+function configureFeedback() {
+  const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  if (!spreadsheet) throw new Error('Google Sheets ішінен Кеңейтімдер → Apps Script арқылы ашыңыз.');
+  PropertiesService.getScriptProperties().setProperty('IZILINGUA_SPREADSHEET_ID', spreadsheet.getId());
+  const sheet = spreadsheet.getSheetByName(FEEDBACK_TAB) || spreadsheet.insertSheet(FEEDBACK_TAB);
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(FEEDBACK_HEADERS);
+    sheet.setFrozenRows(1);
+    sheet.setColumnWidth(4, 510);
+  } else if (sheet.getRange(1, 1, 1, FEEDBACK_HEADERS.length).getDisplayValues()[0].join('|') !== FEEDBACK_HEADERS.join('|')) {
+    throw new Error('Пікірлер парағының бірінші жолындағы баған атаулары сәйкес келмейді.');
+  }
+}
+
+function doGet() {
+  return HtmlService.createHtmlOutput(`<!doctype html><html lang="kk"><head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    *{box-sizing:border-box}body{margin:0;padding:20px;color:#203728;background:#fff;font:16px system-ui,sans-serif}
+    form{max-width:680px}label{display:block;font-weight:650;margin-bottom:8px}
+    textarea,select{display:block;width:100%;margin:6px 0 16px;padding:10px;border:1px solid #aab9ab;border-radius:8px;background:#fff;color:inherit;font:inherit}
+    textarea{min-height:145px;resize:vertical}button{padding:12px 20px;border:0;border-radius:8px;background:#234e39;color:white;font:inherit;font-weight:650}
+    button:disabled{opacity:.65}.secondary{background:#e6eee7;color:#203728;margin:8px 0}
+    .guard{position:absolute;left:-9999px}.hint{font-size:14px;color:#526258}
+  </style></head><body>
+  <form id="feedback">
+    <p class="hint">Сайтты жақсартуға ұсыныс қалдырыңыз немесе байқалған қатені хабарлаңыз. Жеке деректерді енгізбеңіз.</p>
+    <label>Тақырып<select name="category" required>
+      <option value="Ұсыныс">Ұсыныс</option><option value="Қате туралы хабар">Қате туралы хабар</option><option value="Басқа">Басқа</option>
+    </select></label>
+    <label>Пікіріңіз<textarea name="message" minlength="10" maxlength="1500" required></textarea></label>
+    <div class="guard" aria-hidden="true"><label>Веб-сайт<input name="website" tabindex="-1" autocomplete="off"></label></div>
+    <button type="submit">Пікір жіберу</button>
+  </form>
+  <p id="status" role="status" aria-live="polite"></p>
+  <button type="button" class="secondary" id="another" hidden>Тағы пікір қалдыру</button>
+  <script>
+    const form = document.querySelector('#feedback');
+    const status = document.querySelector('#status');
+    const button = form.querySelector('button');
+    const another = document.querySelector('#another');
+    let requestId = crypto.randomUUID(), lastPayload = '';
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      const fields = Object.fromEntries(new FormData(form));
+      const payload = JSON.stringify(fields);
+      if (lastPayload && lastPayload !== payload) requestId = crypto.randomUUID();
+      lastPayload = payload;
+      button.disabled = true;
+      status.textContent = 'Жіберіліп жатыр…';
+      google.script.run
+        .withSuccessHandler(() => {
+          status.textContent = 'Пікіріңіз сақталды. Рақмет!';
+          form.hidden = true;
+          another.hidden = false;
+        })
+        .withFailureHandler(error => {
+          status.textContent = error.message || 'Пікірді сақтау мүмкін болмады. Қайта жіберіп көріңіз.';
+          button.disabled = false;
+        })
+        .saveFeedback({...fields, requestId});
+    });
+    another.addEventListener('click', () => {
+      form.reset(); form.hidden = false; another.hidden = true;
+      button.disabled = false; status.textContent = ''; requestId = crypto.randomUUID(); lastPayload = '';
+      form.elements.category.focus();
+    });
+  </script></body></html>`).setTitle('Izilingua · Кері байланыс')
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+
+function saveFeedback(input) {
+  const requestId = String(input?.requestId ?? '');
+  const category = String(input?.category ?? '');
+  const message = String(input?.message ?? '').trim();
+  if (input?.website || !/^[0-9a-f-]{36}$/i.test(requestId) ||
+      !FEEDBACK_CATEGORIES.includes(category) || message.length < 10 || message.length > 1500) {
+    throw new Error('Тақырыпты таңдап, 10–1500 таңбалық пікір жазыңыз.');
+  }
+  const spreadsheetId = PropertiesService.getScriptProperties().getProperty('IZILINGUA_SPREADSHEET_ID');
+  if (!spreadsheetId) throw new Error('Пікірлер кестесі әзірге қосылмаған.');
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(5000)) throw new Error('Кесте бос емес. Пікірді қайта жіберіп көріңіз.');
+  try {
+    const sheet = SpreadsheetApp.openById(spreadsheetId).getSheetByName(FEEDBACK_TAB);
+    if (!sheet) throw new Error('Пікірлер парағы табылмады.');
+    const row = sheet.getLastRow();
+    if (row > 1 && sheet.getRange(2, 1, row - 1, 1).createTextFinder(requestId).matchEntireCell(true).findNext()) return true;
+    // Force comments to be treated as text in Sheets and spreadsheet exports.
+    sheet.appendRow([requestId, new Date(), category, "'" + message]);
+    SpreadsheetApp.flush();
+    return true;
+  } finally {
+    lock.releaseLock();
+  }
+}
