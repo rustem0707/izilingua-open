@@ -148,10 +148,18 @@ function feedbackSection() {
 function home() {
   const last = readingLink(state.last);
   const resume = last ?? '#course/12';
-  const collection = [0, 1].flatMap(type => [
-    ...courseOrder.map(i => 2 * i + type),
-    ...vocabularyBooks.slice(type * 2, type * 2 + 2).map(book => book.id)
-  ]).map(id => `<a href="#course/${id}">${coverImage(id)}</a>`).join('');
+  const shelfGroups = [
+    ...courseOrder.map(i => ({name: i === 6 ? 'Grammar Guide' : levels[i].name, ids: [2*i, 2*i+1]})),
+    ...bookSections.map(section => ({name: section.title, ids: section.books.map(book => book.id)}))
+  ];
+  const collection = shelfGroups.map(({name, ids}) => {
+    const grammar = ids[0] === 12;
+    const links = ids.map(id => {
+      const label = grammar ? (id === 12 ? 'Grammar Guide' : 'Grammar Guide Practice Book') : bookGroup(id) + ' · ' + title(id);
+      return `<a href="#course/${id}" aria-label="${esc(label)}" title="${esc(label)}">${coverImage(id, true)}${grammar ? `<span class="single-title">${label}</span>` : ''}</a>`;
+    }).join('');
+    return `<div class="shelf-pair${grammar ? ' grammar-pair' : ''}">${links}<strong>${esc(name)}</strong></div>`;
+  }).join('');
   const bookCards = bookSections.map(section => `<a href="#${section.route}" class="card vocabulary-card">
     <div class="cover-art"><span class="cover-section">Кітаптар</span>
       <div class="vocabulary-covers" aria-hidden="true">${section.books.map(book => coverImage(book.id, true)).join('')}</div>
@@ -189,7 +197,7 @@ function home() {
       ${last ? `<a class="shelf-link" href="${resume}">Оқуды жалғастыру</a>` : ''}
       ${last ? `<p class="resume-location">${esc(readingTitle(state.last))} · ${state.last.p}-бет</p>` : ''}
     </div>
-    <div id="home-books" class="cover-collection" role="group" aria-label="English for Everyone жинағының 18 мұқабасы">${collection}</div><button id="expand-books" class="soft" aria-expanded="false" aria-controls="home-books">Барлық 18 кітапты көрсету</button>
+    <div id="home-books" class="cover-collection" role="group" aria-label="English for Everyone жинағының 18 мұқабасы">${collection}</div>
   </section>
   <section class="section">
     <div id="course-list" class="sectionhead"><h2>Оқу курстары</h2><span class="mini">${courseOrder.length + bookSections.length} бөлім · ${books.length} кітап</span></div>
@@ -203,12 +211,6 @@ function home() {
     <h3>Қалған жеріңізден жалғастырыңыз</h3><p>Керек бетке бетбелгі қойып, оны «Менің беттерім» бөлімінен қайта ашыңыз.</p></div>
   </section>
   ${feedbackSection()}`;
-  const toggle = document.querySelector('#expand-books');
-  toggle.onclick = () => {
-    const expanded = document.querySelector('#home-books').classList.toggle('expanded');
-    toggle.setAttribute('aria-expanded', String(expanded));
-    toggle.textContent = expanded ? 'Алты мұқабаны көрсету' : 'Барлық 18 кітапты көрсету';
-  };
 
 }
 function showBookSection(section) {
