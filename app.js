@@ -151,7 +151,7 @@ function home() {
   const collection = [0, 1].flatMap(type => [
     ...courseOrder.map(i => 2 * i + type),
     ...vocabularyBooks.slice(type * 2, type * 2 + 2).map(book => book.id)
-  ]).map(id => coverImage(id)).join('');
+  ]).map(id => `<a href="#course/${id}">${coverImage(id)}</a>`).join('');
   const bookCards = bookSections.map(section => `<a href="#${section.route}" class="card vocabulary-card">
     <div class="cover-art"><span class="cover-section">Кітаптар</span>
       <div class="vocabulary-covers" aria-hidden="true">${section.books.map(book => coverImage(book.id, true)).join('')}</div>
@@ -182,20 +182,33 @@ function home() {
   }).concat(bookCards).join('');
   app.innerHTML = `<section class="hero cover-hero">
     <div class="heroCopy">
-      <span class="label">ҚАЗАҚША ОҚУ СТУДИЯСЫ</span>
-      <h1>Izilingua</h1>
-      <p>Ағылшын тілін қазақша үйрен. English for Everyone оқулықтары, жаттығулары және аудиосы бір жерде.</p>
-      <a class="btn light" href="${resume}">${last ? 'Оқуды жалғастыру' : 'Оқуды бастау'}</a>
-      ${instagramLink('Сайт авторы · Instagram')}
+      <span class="label">IZILINGUA</span>
+      <h1>Ағылшын тілін қазақша түсіндіретін онлайн платформа</h1>
+      <p>Ағылшын тілін өз бетіңізше үйренуге арналған тегін ресурс. Деңгейіңізге сай кітап таңдап, қазақша түсіндірмелерді оқыңыз, аудио тыңдаңыз және жаттығу орындаңыз.</p>
+      <div class="hero-actions"><a class="btn light" href="#courses">Курстарды көру</a><a class="shelf-link" href="#library">18 кітапты қарау</a></div>
+      ${last ? `<a class="shelf-link" href="${resume}">Оқуды жалғастыру</a>` : ''}
       ${last ? `<p class="resume-location">${esc(readingTitle(state.last))} · ${state.last.p}-бет</p>` : ''}
     </div>
-    <div class="cover-collection" role="group" aria-label="English for Everyone жинағының 18 мұқабасы">${collection}</div>
+    <div id="home-books" class="cover-collection" role="group" aria-label="English for Everyone жинағының 18 мұқабасы">${collection}</div><button id="expand-books" class="soft" aria-expanded="false" aria-controls="home-books">Барлық 18 кітапты көрсету</button>
   </section>
   <section class="section">
-    <div class="sectionhead"><h2>Оқу курстары</h2><span class="mini">${courseOrder.length + bookSections.length} бөлім · ${books.length} кітап</span></div>
+    <div id="course-list" class="sectionhead"><h2>Оқу курстары</h2><span class="mini">${courseOrder.length + bookSections.length} бөлім · ${books.length} кітап</span></div>
     <div class="coursegrid">${cards}</div>
   </section>
+  <section class="about-study" id="about-section">
+    <figure><a href="#lesson/14/2/12"><img loading="lazy" src="pages/14/12.webp" alt="Елдер мен ұлттар сабағын ашу"></a><figcaption><b>Елдер мен ұлттар</b><audio controls preload="none" aria-label="Canada сөзінің айтылуы" src="https://apps-api.dk.com/efe/audio/vb/1/vb_1_1_canada_us.mp3"></audio><small>Canada сөзінің айтылуы</small></figcaption></figure>
+    <div><h2>Біз туралы</h2><p>Izilingua — ағылшын тілін қазақша түсініп, өз қарқынымен үйренгісі келетіндерге арналған тегін онлайн платформа. Кітапханамызда English for Everyone сериясының 18 кітабы бар.</p>
+    <h3>Қазақша түсініп оқыңыз</h3><p>Грамматиканы қазақша түсіндірмелер мен ағылшынша мысалдар арқылы меңгеріңіз.</p>
+    <h3>Тыңдап, жаттығыңыз</h3><p>Сөздер мен тіркестердің айтылуын тыңдап, үйренгеніңізді кітаптағы жаттығулармен бекітіңіз.</p>
+    <h3>Қалған жеріңізден жалғастырыңыз</h3><p>Керек бетке бетбелгі қойып, оны «Менің беттерім» бөлімінен қайта ашыңыз.</p></div>
+  </section>
   ${feedbackSection()}`;
+  const toggle = document.querySelector('#expand-books');
+  toggle.onclick = () => {
+    const expanded = document.querySelector('#home-books').classList.toggle('expanded');
+    toggle.setAttribute('aria-expanded', String(expanded));
+    toggle.textContent = expanded ? 'Алты мұқабаны көрсету' : 'Барлық 18 кітапты көрсету';
+  };
 
 }
 function showBookSection(section) {
@@ -379,7 +392,8 @@ function route(){
  if (!(view==='lesson' && books[b]?.units[u]) && !(view==='read' && books[b])) activeReader=null;
  if(section)showBookSection(section);else if(view==='search')globalSearch();else if(view==='library')bookList();else if(view==='saved'||view==='progress')savedReading();else if(view==='course'&&books[b])course(b);else if(view==='lesson'&&books[b]?.units[u])reader(b,u,Number(pp));else if(view==='read'&&books[b])reader(b,null,Number(uu));else home();
  if(previousRoute!==family)window.scrollTo({top:0,behavior:'instant'});previousRoute=family;
- document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('on',a.hash===(view==='library'||view==='read'?'#library':view==='saved'||view==='progress'?'#saved':view==='search'?'#search':'#courses')));
+ document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('on',a.hash===(view==='about'?'#about':view==='library'||view==='read'?'#library':view==='saved'||view==='progress'?'#saved':view==='search'?'#search':'#courses')));
+ if (view==='about' || view==='courses') document.getElementById(view==='about'?'about-section':'course-list')?.scrollIntoView();
  const heading=app.querySelector('h1')?.textContent;
  document.title=heading&&heading!=='Izilingua' ? heading+' · Izilingua' : 'Izilingua · Ағылшын тілін қазақша үйрен';
 }
@@ -390,9 +404,7 @@ window.addEventListener('keydown',event=>{
  const button = id && document.querySelector(id);
  if (button && !button.disabled) { event.preventDefault(); button.click(); }
 });
-const headerAuthor = document.querySelector('#header-author');
 const footerAuthor = document.querySelector('#footer-author');
-if (headerAuthor) headerAuthor.innerHTML = instagramLink('Сайт авторының Instagram парақшасы', true);
 if (footerAuthor) footerAuthor.innerHTML = instagramLink('Сайт авторы · Instagram');
 const sectionPicker = document.querySelector('#section-picker');
 for (const i of courseOrder) sectionPicker.add(new Option(levels[i].name, '#course/' + (2*i)));
