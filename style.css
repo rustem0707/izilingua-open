@@ -116,3 +116,5 @@
  .page-stage .page-arrow:disabled{visibility:hidden}
  .side audio{max-width:100%}
 }
+
+.section-controls{max-width:1180px;margin:12px auto;display:flex;gap:8px;padding:0 16px;align-items:center;flex-wrap:wrap}.section-controls button,.section-controls select{font:inherit;border:1px solid #bacbc0;border-radius:8px;padding:8px;color:#193c2f;background:white;min-height:44px}.section-controls select{max-width:100%;min-width:0}.section-controls button:disabled{opacity:.45}

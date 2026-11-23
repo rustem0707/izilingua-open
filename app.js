@@ -277,7 +277,7 @@ async function reader(b,u,p){
   } catch {
    if (request !== readerRequest || !stage.isConnected) return;
    stage.removeAttribute('aria-busy');
-   history.replaceState(null,'',url(activeReader.page));
+   history.replaceState(history.state,'',url(activeReader.page));
    stage.querySelector('.page-status').textContent = 'Бет жүктелмеді. Қайта басыңыз.';
    return;
   }
@@ -298,10 +298,14 @@ async function reader(b,u,p){
  const existingAudio=app.querySelector('.lesson-audio');
  const intro=single && !standalone && books[b-b%2].units[u]?.intro;
  const answer=book.answer?'<a class="back" href="#read/'+b+'/'+book.answer+'">'+(b===12?'Анықтамалықты ашу':'Жауап кілтін ашу')+'</a>':'';
- const lessonAudio=single && b<12
-   ? (existingAudio?.dataset.lesson===b+'-'+(u+1) ? existingAudio : createLessonAudio(b,u+1))
-   : null;
-
+ const topicIndex = single ? u : book.units.findIndex(topic => topic.start <= p && p <= topic.end);
+ const audioNumber = b >= 14 ? topicIndex + 1 - (b === 16 ? 3 : 2) : u + 1;
+ const hasAudio = b >= 14 ? !!dkAudio[b]?.[audioNumber] : single && b < 12;
+ const lessonAudio = hasAudio ? (existingAudio?.dataset.lesson === b+'-'+audioNumber ? existingAudio : createLessonAudio(b,audioNumber)) : null;
+ if (same && existingAudio !== lessonAudio) {
+  existingAudio?.remove();
+  if (lessonAudio) app.querySelector('.side').prepend(lessonAudio);
+ }
  if (!same) {
  app.innerHTML='<div class="subhead"><a class="back" href="'+(single?'#course/'+b:'#library')+'">'+(single?esc(standalone?book.name:group)+' · Мазмұны':'Кітапхана')+'</a><h1 class="lessonTitle">'+esc(single?unit.title:standalone?book.name:group+' · '+title(b))+'</h1>'+(single?'<span class="badge">'+(u+1)+'-сабақ</span>':'')+(intro?'<p>'+esc(intro)+'</p>':'')+(lessonAudio?.querySelector('audio')?'<button type="button" id="skip-to-audio" class="soft">Сабақ аудиосына өту</button>':'')+'</div>'+(single&&!standalone?tabs(b,u):'')+navigation+'<div class="lessonlayout"><section class="panel reader"><div class="readerbar"><div class="pager">'+pageButton(-1,p===start)+'<span>'+p+' / '+end+' бет</span>'+pageButton(1,p===end)+'</div><div class="reader-actions"><button type="button" class="soft" id="bookmark" aria-pressed="'+hasBookmark+'">'+(hasBookmark?'✓ Бетбелгі':'Бетбелгі')+'</button><button type="button" class="soft" id="zoom" aria-pressed="'+zoomed+'">'+(zoomed?'Кішірейту':'Үлкейту')+'</button></div></div><div class="page-stage"><div class="pageimg'+(zoomed?' zoom':'')+'"><img src="'+pages(b,p)+'" alt="'+esc(title(b)+' · '+p+'-бет')+'"></div>'+pageButton(-1,p===start,true)+pageButton(1,p===end,true)+'</div></section><aside class="side">'+(single?'':'<section class="panel"><h3>Бетке өту</h3><form id="jump"><label for="page">Бет нөмірі</label><div class="row"><input type="number" min="1" max="'+end+'" required id="page" value="'+p+'"><button>Ашу</button></div></form>'+(lessonToResume?'<a class="back" href="'+lessonToResume+'">Сабаққа оралу</a>':'')+'</section>')+'<section class="panel"><a class="back" href="#course/'+b+'">Кітап мазмұны</a><a class="back" target="_blank" rel="noopener" href="'+book.original+'">'+(b>=12?'Қазақша PDF':'Түпнұсқа PDF')+'</a>'+answer+'</section></aside></div>'+navigation;
  if(lessonAudio)app.querySelector('.side').prepend(lessonAudio);
@@ -390,5 +394,32 @@ const headerAuthor = document.querySelector('#header-author');
 const footerAuthor = document.querySelector('#footer-author');
 if (headerAuthor) headerAuthor.innerHTML = instagramLink('Сайт авторының Instagram парақшасы', true);
 if (footerAuthor) footerAuthor.innerHTML = instagramLink('Сайт авторы · Instagram');
-window.addEventListener('hashchange',route);
+const sectionPicker = document.querySelector('#section-picker');
+for (const i of courseOrder) sectionPicker.add(new Option(levels[i].name, '#course/' + (2*i)));
+for (const section of bookSections) sectionPicker.add(new Option(section.title, '#' + section.route));
+sectionPicker.onchange = () => { if (sectionPicker.value) location.hash = sectionPicker.value; sectionPicker.selectedIndex = 0; };
+const backButton = document.querySelector('#site-back');
+const forwardButton = document.querySelector('#site-forward');
+let position = 0;
+let furthest = 0;
+const visit = Math.random().toString(36);
+function updateControls() {
+ backButton.disabled = !position && !location.hash.slice(1);
+ forwardButton.disabled = position >= furthest;
+}
+function recordRoute() {
+ const entry = history.state;
+ if (entry?.visit === visit) position = entry.position;
+ else {
+  furthest = ++position;
+  history.replaceState({visit,position}, '');
+ }
+ updateControls();
+ route();
+}
+history.replaceState({visit,position}, '');
+backButton.onclick = () => { if (position) history.back(); else location.hash = ''; };
+forwardButton.onclick = () => history.forward();
+updateControls();
+window.addEventListener('hashchange',recordRoute);
 route();
