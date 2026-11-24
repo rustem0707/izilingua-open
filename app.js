@@ -348,6 +348,7 @@ async function reader(b,u,p){
   const next = new Image();
   next.src=pages(b,p+1);
  }
+ izPractice.mount(app, b, p, b !== 12 ? book.answer : null);
  const $=s=>document.querySelector(s);
  const audioShortcut=$('#skip-to-audio');
  if(audioShortcut && lessonAudio?.querySelector('audio')) audioShortcut.onclick=()=>{
