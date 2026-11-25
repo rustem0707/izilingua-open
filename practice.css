@@ -1,69 +1,71 @@
-.iz-practice {
-  box-sizing: border-box;
-  background: #ffffff;
-  color: #192c25;
-  border: 1px solid #d5dcd0;
-  border-radius: 18px;
-  padding: clamp(16px, 2.5vw, 26px);
-  margin-top: 20px;
-  font: 15px/1.55 "Inter", "Segoe UI", system-ui, sans-serif;
-  overflow-wrap: anywhere;
-  box-shadow: 0 6px 20px rgba(25, 62, 50, 0.04);
-}
-.iz-practice * { box-sizing: border-box; }
-.iz-practice [hidden] { display: none !important; }
-.iz-practice button, .iz-practice select, .iz-practice input, .iz-practice textarea { font: inherit; }
-.iz-practice button {
-  cursor: pointer;
-  background: #193e32;
-  color: #fff;
-  border: 1px solid #193e32;
-  padding: 9px 16px;
-  border-radius: 10px;
-  font-weight: 600;
-  transition: filter 0.15s, background 0.15s;
-}
-.iz-practice button:hover { filter: brightness(0.94); }
-.iz-practice button:disabled { opacity: 0.5; cursor: default; }
-.iz-practice > button { width: 100%; font-weight: 700; padding: 12px 18px; }
-.iz-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 15px; }
-.iz-tabs button { color: #193e32; background: #f2f5ee; border-color: #d5dcd0; padding: 6px 12px; }
-.iz-tabs button[aria-pressed=true] { background: #193e32; color: #fff; border-color: #193e32; }
-.iz-practice h3 { font: 650 18px/1.4 Georgia, serif; margin: 16px 0 8px; color: #193e32; }
-.iz-hint, .iz-free p { color: #5c6b60; }
-.iz-practice input, .iz-practice select, .iz-practice textarea {
-  padding: 9px 12px;
-  background: #fcfcf9;
-  border: 1px solid #bec9bd;
-  border-radius: 9px;
-  color: #192c25;
+.iz-practice{box-sizing:border-box;background:#fffef9;color:#193c32;border:1px solid #cdd8cc;border-radius:12px;padding:clamp(12px,2vw,22px);font:15px/1.5 system-ui,sans-serif;overflow-wrap:anywhere}.iz-practice *{box-sizing:border-box}.iz-practice [hidden]{display:none!important}.iz-practice button,.iz-practice select,.iz-practice input,.iz-practice textarea{font:inherit}.iz-practice button{cursor:pointer;background:#215948;color:#fff;border:1px solid #215948;padding:8px 14px;border-radius:7px}.iz-practice button:disabled{opacity:.55}.iz-practice>button{width:100%;font-weight:700}.iz-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-top:15px}.iz-tabs button{color:#215948;background:#fff;padding:5px 10px}.iz-tabs button[aria-pressed=true]{background:#d7e8dc}.iz-practice h3{font:650 18px/1.4 system-ui;margin:15px 0 8px}.iz-hint,.iz-free p{color:#51645a}.iz-practice input,.iz-practice select,.iz-practice textarea{padding:8px 10px;background:#fff;border:1px solid #91a79b;border-radius:6px;color:#172f26;min-width:0}.iz-row{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;align-items:center;margin:9px 0}.iz-row label{max-width:250px}.iz-row small,.iz-chips{grid-column:2}.iz-row[data-status=good] small{color:#14643c}.iz-row[data-status=different] small{color:#9e361b}.iz-practice details{margin:12px 0}.iz-practice summary{cursor:pointer;color:#215948;font-weight:600}.iz-audio audio,.iz-free audio{display:block;width:100%;max-width:420px;margin:8px 0}.iz-audio select{margin-top:10px}.iz-practice a{color:#175847}.iz-practice textarea{display:block;width:100%;min-height:90px;margin:8px 0}.iz-free{border-top:1px solid #d8dfd6;padding-top:13px}.iz-free span{display:block;margin:6px 0}.iz-key img{display:block;max-width:100%;height:auto;margin:10px 0}.iz-chips button{background:white;color:#214b40;margin:3px;padding:3px 7px}.iz-score{font-weight:600}.iz-practice :focus-visible{outline:3px solid #b75b1c;outline-offset:2px}@media(max-width:520px){.iz-row{grid-template-columns:1fr}.iz-row small,.iz-chips{grid-column:1}.iz-row label{max-width:none}}
+
+.lessonlayout.iz-practice-open .side > .iz-practice {
   min-width: 0;
 }
-.iz-row {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 4px 12px;
-  align-items: center;
-  margin: 10px 0;
+
+.iz-practice-content > div > .iz-ex > h3 {
+  margin-top: 10px;
 }
-.iz-row label { max-width: 260px; font-weight: 500; }
-.iz-row small, .iz-chips { grid-column: 2; }
-.iz-row[data-status=good] small { color: #2c6e49; font-weight: 600; }
-.iz-row[data-status=different] small { color: #b54020; font-weight: 600; }
-.iz-practice details { margin: 14px 0; }
-.iz-practice summary { cursor: pointer; color: #193e32; font-weight: 650; }
-.iz-audio audio, .iz-free audio { display: block; width: 100%; max-width: 440px; margin: 8px 0; }
-.iz-audio select { margin-top: 10px; }
-.iz-practice a { color: #193e32; text-decoration: underline; }
-.iz-practice textarea { display: block; width: 100%; min-height: 95px; margin: 8px 0; }
-.iz-free { border-top: 1px solid #e2e6dd; padding-top: 14px; }
-.iz-free span { display: block; margin: 6px 0; }
-.iz-key img { display: block; max-width: 100%; height: auto; margin: 10px 0; border-radius: 8px; }
-.iz-chips button { background: #f4f7f0; color: #193e32; border-color: #c8d3c5; margin: 3px; padding: 4px 10px; font-size: 13.5px; }
-.iz-score { font-weight: 700; color: #193e32; }
-.iz-practice :focus-visible { outline: 3px solid #d7773d; outline-offset: 2px; }
-@media (max-width: 520px) {
-  .iz-row { grid-template-columns: 1fr; }
-  .iz-row small, .iz-chips { grid-column: 1; }
-  .iz-row label { max-width: none; }
+
+.iz-practice .lesson-audio {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 2fr) minmax(0, 1fr);
+  align-items: end;
+  gap: 6px 10px;
+  margin: 0 0 12px;
+  padding: 12px;
+  border: 1px solid #cdd8cc;
+  border-radius: 10px;
+  background: white;
+}
+
+.iz-practice .lesson-audio h3,
+.iz-practice .lesson-audio audio,
+.iz-practice .lesson-audio p,
+.iz-practice .lesson-audio small {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.iz-practice .lesson-audio audio {
+  grid-row: 3;
+  width: 100%;
+  max-width: none;
+}
+
+.iz-practice .lesson-audio label {
+  display: grid;
+  gap: 3px;
+}
+
+.iz-practice .lesson-audio .audio-speed {
+  display: grid;
+}
+
+.iz-practice .lesson-audio .audio-status:empty {
+  display: none;
+}
+
+@media (min-width: 901px) {
+  .lessonlayout.iz-practice-open {
+    grid-template-columns: minmax(0, 1.42fr) minmax(0, 1fr);
+  }
+
+  .lessonlayout.iz-practice-open > .side {
+    grid-template-columns: minmax(0, 1fr);
+    position: sticky;
+    top: 12px;
+    min-width: 0;
+    max-height: calc(100vh - 24px);
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+  }
+}
+
+@media (max-width: 900px) {
+  .lessonlayout.iz-practice-open,
+  .lessonlayout.iz-practice-open > .side {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
