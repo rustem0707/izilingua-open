@@ -564,10 +564,13 @@ function savedReading() {
     ${last ? `<section class="panel last-reading"><h2>Соңғы ашылған бет</h2>
       <a class="unit" href="${last}"><div><b>${esc(readingTitle(state.last))}</b><small>${esc(bookGroup(state.last.b))} · ${state.last.p}-бет</small></div></a></section>` : ''}
     ${bookmarks || '<div class="panel"><p class="muted" style="margin:0">Бетбелгі қосу үшін сабақ ішіндегі «Бетбелгі» батырмасын басыңыз.</p></div>'}
-    ${notes.length ? `<section class="section"><div class="saved-head"><h2>Сабақ жазбаларым (${notes.length})</h2>${notes.length > 1 ? '<button type="button" class="soft btn-del" id="clear-notes">Барлық жазбаны өшіру</button>' : ''}</div><div class="libgrid">
+    ${notes.length ? `<section class="section"><div class="saved-head"><h2>Сабақ жазбаларым (${notes.length})</h2><div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="soft btn-del" id="del-selected-notes" hidden>Таңдалғандарды өшіру</button>${notes.length > 1 ? '<button type="button" class="soft btn-del" id="clear-notes">Барлық жазбаны өшіру</button>' : ''}</div></div><div class="libgrid">
       ${notes.map(({ id, b, u, unit, text }) => `<div class="panel">
         <div class="saved-note-head">
-          <div><h3>${esc(unit.title)}</h3><small class="muted">${esc(bookGroup(b))}</small></div>
+          <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer">
+            <input type="checkbox" class="note-select" value="${esc(id)}" style="margin-top:4px">
+            <div><h3>${esc(unit.title)}</h3><small class="muted">${esc(bookGroup(b))}</small></div>
+          </label>
           <button type="button" class="soft btn-del" data-del-note="${esc(id)}" aria-label="Жазбаны өшіру">✕ Өшіру</button>
         </div>
         <p class="saved-note">${esc(text)}</p>
@@ -597,6 +600,24 @@ function savedReading() {
       savedReading();
     };
   });
+  const delSelectedNotes = document.querySelector('#del-selected-notes');
+  const noteCheckboxes = [...document.querySelectorAll('.note-select')];
+  if (delSelectedNotes && noteCheckboxes.length) {
+    noteCheckboxes.forEach(cb => {
+      cb.onchange = () => {
+        const count = noteCheckboxes.filter(c => c.checked).length;
+        delSelectedNotes.hidden = count === 0;
+        delSelectedNotes.textContent = `Таңдалғандарды өшіру (${count})`;
+      };
+    });
+    delSelectedNotes.onclick = () => {
+      for (const cb of noteCheckboxes) {
+        if (cb.checked) delete state.notes[cb.value];
+      }
+      save();
+      savedReading();
+    };
+  }
   const clearNotes = document.querySelector('#clear-notes');
   if (clearNotes) {
     clearNotes.onclick = () => {
