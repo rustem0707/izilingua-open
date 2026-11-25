@@ -27,6 +27,11 @@
         <a href="#search" data-nav="search">Іздеу</a>
         <a href="#about" data-nav="about">Біз туралы</a>
       </nav>
+      <div class="theme-switch" role="group" aria-label="Оқу тақырыбы">
+        <button type="button" data-theme="day" title="Күндізгі режим" aria-label="Күндізгі режим">☀</button>
+        <button type="button" data-theme="sepia" title="Сепия режимі" aria-label="Сепия режимі">📜</button>
+        <button type="button" data-theme="dark" title="Қараңғы режим" aria-label="Қараңғы режим">🌙</button>
+      </div>
     </div>
   </header>
 
@@ -42,7 +47,25 @@
     </div>
   </div>
 
-  <main id="app"></main>
+  <main id="app">
+    <div class="app-skeleton" aria-busy="true" aria-label="Жүктелуде">
+      <div class="sk-hero"></div>
+      <div class="sk-grid">
+        <div class="sk-card"></div>
+        <div class="sk-card"></div>
+        <div class="sk-card"></div>
+      </div>
+      <p class="sk-text">Кітаптар мен сабақтар жүктелуде…</p>
+    </div>
+    <noscript><p class="panel">Izilingua жұмыс істеуі үшін браузерде JavaScript қосулы болуы тиіс.</p></noscript>
+  </main>
+
+  <nav class="mobile-bottom-nav" aria-label="Мобильді мәзір">
+    <a href="#courses" data-nav="courses">Курстар</a>
+    <a href="#library" data-nav="library">Кітапхана</a>
+    <a href="#search" data-nav="search">Іздеу</a>
+    <a href="#saved" data-nav="saved">Менің</a>
+  </nav>
 
   <footer>
     <div class="footer-inner">
@@ -63,11 +86,8 @@
   <script src="books.js"></script>
   <script src="grammar.js"></script>
   <script src="vocabulary.js"></script>
-  <script src="audio-data.js"></script>
-  <script src="book-audio.js"></script>
   <script src="lesson-audio.js"></script>
   <script src="site-config.js"></script>
-  <script src="practice.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

@@ -14,6 +14,34 @@ const courseOrder = [6, 3, 4, 1, 2, 0, 5];
 const app = document.querySelector('#app');
 const esc = v => String(v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
+const assetPromises = {};
+function loadScriptOnce(src) {
+  if (assetPromises[src]) return assetPromises[src];
+  assetPromises[src] = new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = src;
+    script.async = false;
+    script.onload = resolve;
+    script.onerror = () => { delete assetPromises[src]; reject(new Error(src)); };
+    document.body.append(script);
+  });
+  return assetPromises[src];
+}
+
+async function ensureStudyAssets({ audio = false, bookAudio = false, practice = false } = {}) {
+  const tasks = [];
+  if ((audio || bookAudio) && typeof dkAudio === 'undefined') {
+    await loadScriptOnce('audio-data.js');
+  }
+  if (bookAudio && (typeof dkAudio === 'undefined' || !dkAudio?.[14])) {
+    tasks.push(loadScriptOnce('book-audio.js'));
+  }
+  if (practice && typeof izPractice === 'undefined') {
+    tasks.push(loadScriptOnce('practice.js'));
+  }
+  if (tasks.length) await Promise.all(tasks);
+}
+
 const storageKey = 'folio-study-v1';
 const state = { done: {}, notes: {}, last: null, lastLesson: null, bookmarks: {} };
 
@@ -170,7 +198,7 @@ function configuredInstagram(value) {
 }
 
 const instagram = configuredInstagram(typeof siteConfig === 'object' ? siteConfig.instagram : '');
-const feedbackWebApp = typeof siteConfig === 'object' ? siteConfig.feedbackWebApp.trim() : '';
+const feedbackWebApp = typeof siteConfig === 'object' ? String(siteConfig.feedbackWebApp ?? '').trim() : '';
 const feedbackEnabled = /^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(feedbackWebApp);
 const instagramIcon = '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.4" cy="6.8" r=".8" fill="currentColor" stroke="none"/></svg>';
 
@@ -188,9 +216,16 @@ function feedbackSection() {
   </section>`;
 }
 
+let courseFilter = 'all';
 function home() {
   const last = readingLink(state.last);
   const totalDone = Object.keys(state.done).length;
+  let totalPracticeWork = 0;
+  try {
+    for (let k = 0; k < localStorage.length; k++) {
+      if (localStorage.key(k)?.startsWith('iz-work:')) totalPracticeWork++;
+    }
+  } catch {}
   const shelfGroups = [
     ...courseOrder.map(i => ({ name: i === 6 ? 'Grammar Guide' : levels[i].name, ids: [2 * i, 2 * i + 1] })),
     ...bookSections.map(section => ({ name: section.title, ids: section.books.map(book => book.id) }))
@@ -204,7 +239,9 @@ function home() {
     return `<div class="shelf-pair${grammar ? ' grammar-pair' : ''}">${links}<strong>${esc(name)}</strong></div>`;
   }).join('');
 
-  const bookCards = bookSections.map(section => {
+  const bookCards = bookSections
+    .filter(() => courseFilter === 'all' || courseFilter === 'ref')
+    .map(section => {
     const p0 = bookProgress(section.books[0].id);
     const p1 = bookProgress(section.books[1].id);
     const done = p0.done + p1.done;
@@ -225,7 +262,14 @@ function home() {
     </a>`;
   });
 
-  const cards = courseOrder.map(i => {
+  const filteredCourseOrder = courseOrder.filter(i => {
+    if (courseFilter === 'levels') return i >= 1 && i <= 4;
+    if (courseFilter === 'business') return i === 0 || i === 5;
+    if (courseFilter === 'ref') return i === 6;
+    return true;
+  });
+
+  const cards = filteredCourseOrder.map(i => {
     const level = levels[i];
     const bookId = 2 * i;
     const prog = bookProgress(bookId);
@@ -248,6 +292,13 @@ function home() {
     </a>`;
   }).concat(bookCards).join('');
 
+  const courseTabs = [
+    { id: 'all', label: 'Барлығы (9)' },
+    { id: 'levels', label: 'Levels 1–4' },
+    { id: 'business', label: 'Business English' },
+    { id: 'ref', label: 'Грамматика және Сөздік' }
+  ];
+
   app.innerHTML = `<section class="hero cover-hero">
     <div class="heroCopy">
       <span class="hero-badge">ENGLISH FOR EVERYONE · 18 КІТАП</span>
@@ -267,8 +318,13 @@ function home() {
 
   <section class="section">
     <div id="course-list" class="sectionhead">
-      <h2>Оқу курстары</h2>
-      <span class="mini">${courseOrder.length + bookSections.length} бөлім · ${books.length} кітап${totalDone ? ' · ' + totalDone + ' сабақ өтілді' : ''}</span>
+      <div>
+        <h2>Оқу курстары</h2>
+        <span class="mini">${courseOrder.length + bookSections.length} бөлім · ${books.length} кітап${totalDone ? ' · ' + totalDone + ' сабақ өтілді' : ''}${totalPracticeWork ? ' · ' + totalPracticeWork + ' тапсырма' : ''}</span>
+      </div>
+      <div class="tabs" id="course-filters">${courseTabs.map(t =>
+        `<button type="button" class="${courseFilter === t.id ? 'selected' : ''}" data-filter="${t.id}">${t.label}</button>`).join('')}
+      </div>
     </div>
     <div class="coursegrid">${cards}</div>
   </section>
@@ -294,6 +350,10 @@ function home() {
     </div>
   </section>
   ${feedbackSection()}`;
+
+  document.querySelectorAll('#course-filters button').forEach(btn => {
+    btn.onclick = () => { courseFilter = btn.dataset.filter; home(); };
+  });
 }
 
 function showBookSection(section) {
@@ -309,10 +369,81 @@ function showBookSection(section) {
           <div class="lib-links">
             <a class="btn" href="#course/${book.id}">Мазмұны</a>
             <a class="btn soft" href="#read/${book.id}/1">Кітапты оқу</a>
+            <a class="btn soft" href="#flashcards/${book.id}">🗂 Сөздік карточкалары</a>
           </div>
         </div>
       </article>`;
     }).join('')}</div>`;
+}
+
+async function flashcards(b) {
+  const book = books[b];
+  if (!book || b < 14) { home(); return; }
+  app.innerHTML = `<div class="subhead"><a class="back" href="#course/${b}">← ${esc(book.name)}</a>
+    <h1>${esc(book.name)} · Сөздік карточкалары</h1>
+    <p id="fc-status" class="muted">Сөздік аудио базасы жүктелуде…</p></div>`;
+  try {
+    await ensureStudyAssets({ audio: true, bookAudio: true });
+  } catch {
+    const st = document.querySelector('#fc-status');
+    if (st) st.textContent = 'Аудио базасы жүктелмеді. Қайта көріңіз.';
+    return;
+  }
+  if (!location.hash.startsWith('#flashcards/' + b)) return;
+
+  const cards = [];
+  const bookAudio = dkAudio?.[b] || {};
+  for (const [topicNum, exMap] of Object.entries(bookAudio)) {
+    for (const tracks of Object.values(exMap || {})) {
+      for (const [path, label] of tracks || []) {
+        const text = String(label ?? '').trim();
+        if (text && !/^\d+$/.test(text)) {
+          cards.push({ path, text, topicNum });
+        }
+      }
+    }
+  }
+  if (!cards.length) {
+    document.querySelector('#fc-status').textContent = 'Бұл кітапта карточкаға арналған сөздер табылмады.';
+    return;
+  }
+
+  let idx = Math.floor(Math.random() * cards.length);
+  let known = 0;
+  let revealed = false;
+
+  function renderCard() {
+    const item = cards[idx];
+    const unit = book.units[Number(item.topicNum) + (b === 16 ? 2 : 1)];
+    app.innerHTML = `<div class="subhead"><a class="back" href="#course/${b}">← ${esc(book.name)}</a>
+      <h1>Сөздік карточкалары</h1>
+      <p class="muted">${esc(book.name)} · Барлығы ${cards.length} сөз/тіркес · Білемін: <b>${known}</b></p></div>
+      <div class="flashcard-wrap">
+        <div class="flashcard" id="fc-card" role="button" tabindex="0" aria-label="Карточканы аудару">
+          <small class="muted">Тақырып #${esc(item.topicNum)}${unit ? ' · ' + esc(unit.title) : ''}</small>
+          <strong>${esc(item.text)}</strong>
+          <div id="fc-extra" ${revealed ? '' : 'hidden'}>
+            <small class="muted">Дыбысталуын тыңдап, сөйлем құрап көріңіз</small>
+          </div>
+          <small class="muted">${revealed ? 'Жасыру үшін басыңыз' : 'Ақпаратты көру үшін басыңыз'}</small>
+        </div>
+        <audio id="fc-audio" controls preload="none" src="https://apps-api.dk.com/efe${encodeURI(item.path)}" style="width:100%"></audio>
+        <div class="flashcard-actions">
+          <button type="button" class="soft" id="fc-repeat">↻ Қайталау</button>
+          <button type="button" class="success" id="fc-know">✓ Білемін</button>
+        </div>
+      </div>`;
+    const cardEl = document.querySelector('#fc-card');
+    const toggle = () => {
+      revealed = !revealed;
+      document.querySelector('#fc-extra').hidden = !revealed;
+    };
+    cardEl.onclick = toggle;
+    cardEl.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } };
+    document.querySelector('#fc-repeat').onclick = () => { revealed = false; idx = (idx + 1 + Math.floor(Math.random() * 17)) % cards.length; renderCard(); };
+    document.querySelector('#fc-know').onclick = () => { known++; revealed = false; idx = (idx + 1 + Math.floor(Math.random() * 17)) % cards.length; renderCard(); };
+  }
+  renderCard();
 }
 
 function tabs(b, u) {
@@ -325,7 +456,9 @@ function course(b) {
   const info = book.name ? book.subtitle : sectionName(l) + ' · ' + l.tag;
   const section = bookSection(b);
   const back = section ? '<a class="back" href="#' + section.route + '">← ' + esc(section.title) + '</a>' : '<a class="back" href="#courses">← Барлық курс</a>';
-  const controls = book.name ? '<a class="btn soft" href="#read/' + b + '/1">Кітапты басынан оқу</a>' : tabs(b);
+  const controls = book.name
+    ? `<div class="lib-links" style="margin:0"><a class="btn soft" href="#read/${b}/1">Кітапты басынан оқу</a>${b >= 14 ? `<a class="btn soft" href="#flashcards/${b}">🗂 Сөздік карточкалары</a>` : ''}</div>`
+    : tabs(b);
   const prog = bookProgress(b);
 
   app.innerHTML = `<div class="subhead">${back}
@@ -411,13 +544,63 @@ function savedReading() {
   });
 
   app.innerHTML = `<div class="subhead"><h1>Менің беттерім</h1>
-    <p>Оқу прогресі (${doneCount} сабақ өтілді), соңғы ашылған бет және бетбелгілер осы браузерде сақталады.</p></div>
+    <p>Оқу прогресі (${doneCount} сабақ өтілді), соңғы ашылған бет және бетбелгілер осы браузерде сақталады.</p>
+    <div class="export-bar">
+      <button type="button" class="soft" id="export-progress">⬇ Прогрессті сақтау (.json)</button>
+      <label class="btn soft" for="import-progress" style="margin:0">⬆ Қалпына келтіру<input type="file" id="import-progress" accept=".json,application/json" hidden></label>
+      <small id="backup-status" class="muted" role="status"></small>
+    </div></div>
     ${last ? `<section class="panel last-reading"><h2>Соңғы ашылған бет</h2>
       <a class="unit" href="${last}"><div><b>${esc(readingTitle(state.last))}</b><small>${esc(bookGroup(state.last.b))} · ${state.last.p}-бет</small></div></a></section>` : ''}
     ${bookmarks || '<div class="panel"><p class="muted" style="margin:0">Бетбелгі қосу үшін сабақ ішіндегі «Бетбелгі» батырмасын басыңыз.</p></div>'}
     ${notes.length ? `<section class="section"><h2>Сабақ жазбаларым (${notes.length})</h2><div class="libgrid">
       ${notes.map(({ unit, text }) => `<div class="panel"><h3>${esc(unit.title)}</h3><p class="saved-note">${esc(text)}</p></div>`).join('')}
     </div></section>` : ''}`;
+
+  document.querySelector('#export-progress').onclick = () => {
+    const work = {};
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith('iz-work:')) work[k] = localStorage.getItem(k);
+      }
+    } catch {}
+    const payload = JSON.stringify({ version: 1, exportedAt: new Date().toISOString(), study: state, work }, null, 2);
+    const blob = new Blob([payload], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'izilingua-progress-' + new Date().toISOString().slice(0, 10) + '.json';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    document.querySelector('#backup-status').textContent = 'Файл жүктелді ✓';
+  };
+
+  document.querySelector('#import-progress').onchange = async e => {
+    const file = e.target.files?.[0];
+    const statusEl = document.querySelector('#backup-status');
+    if (!file) return;
+    try {
+      const data = JSON.parse(await file.text());
+      if (!data?.study || typeof data.study !== 'object') throw new Error();
+      for (const field of ['done', 'notes', 'bookmarks']) {
+        if (data.study[field] && typeof data.study[field] === 'object' && !Array.isArray(data.study[field])) {
+          state[field] = data.study[field];
+        }
+      }
+      if (data.study.last) state.last = data.study.last;
+      if (data.study.lastLesson) state.lastLesson = data.study.lastLesson;
+      save();
+      if (data.work && typeof data.work === 'object') {
+        for (const [k, v] of Object.entries(data.work)) {
+          if (k.startsWith('iz-work:') && typeof v === 'string') localStorage.setItem(k, v);
+        }
+      }
+      savedReading();
+      document.querySelector('#backup-status').textContent = 'Прогресс қалпына келтірілді ✓';
+    } catch {
+      statusEl.textContent = 'Қате файл пішімі.';
+    }
+  };
 }
 
 function lessonNavigation(book, unitIndex) {
@@ -490,8 +673,12 @@ async function reader(b, u, p) {
   const answer = book.answer ? '<a class="back" href="#read/' + b + '/' + book.answer + '">' + (b === 12 ? 'Анықтамалықты ашу' : 'Жауап кілтін ашу') + '</a>' : '';
   const topicIndex = single ? u : book.units.findIndex(topic => topic.start <= p && p <= topic.end);
   const audioNumber = b >= 14 ? topicIndex + 1 - (b === 16 ? 3 : 2) : u + 1;
-  const hasAudio = b >= 14 ? !!dkAudio[b]?.[audioNumber] : single && b < 12;
+  const needAudio = (b >= 14 && topicIndex >= 0) || (single && b < 12);
+  const hasAudioData = typeof dkAudio !== 'undefined' && (b < 14 || Boolean(dkAudio[14]));
+  const hasAudio = b >= 14 ? Boolean(typeof dkAudio !== 'undefined' && dkAudio[b]?.[audioNumber]) : single && b < 12;
   const lessonAudio = hasAudio ? (existingAudio?.dataset.lesson === b + '-' + audioNumber ? existingAudio : createLessonAudio(b, audioNumber)) : null;
+  const hasPublicOriginal = book.original && !String(book.original).includes('chatgpt.com/library');
+  const zenOn = document.body.classList.contains('iz-zen');
 
   if (same && existingAudio !== lessonAudio) {
     existingAudio?.remove();
@@ -516,6 +703,7 @@ async function reader(b, u, p) {
             ${single ? `<button type="button" id="mark-done" class="${isDone ? 'success' : 'soft'}" aria-pressed="${isDone}">${isDone ? '✓ Өтілді' : 'Сабақты аяқтау'}</button>` : ''}
             <button type="button" class="soft" id="bookmark" aria-pressed="${hasBookmark}">${hasBookmark ? '✓ Бетбелгі' : 'Бетбелгі'}</button>
             <button type="button" class="soft" id="zoom" aria-pressed="${zoomed}">${zoomed ? 'Кішірейту' : 'Үлкейту'}</button>
+            <button type="button" class="soft" id="zen-toggle" aria-pressed="${zenOn}">${zenOn ? '✕ Фокус' : '⛶ Фокус'}</button>
           </div>
         </div>
         <div class="page-stage">
@@ -530,7 +718,7 @@ async function reader(b, u, p) {
         <section class="panel">
           <h3>Қосымша</h3>
           <a class="back" href="#course/${b}">Кітап мазмұны</a>
-          <a class="back" target="_blank" rel="noopener" href="${book.original}">${b >= 12 ? 'Қазақша PDF ↗' : 'Түпнұсқа PDF ↗'}</a>
+          ${hasPublicOriginal ? `<a class="back" target="_blank" rel="noopener" href="${esc(book.original)}">${b >= 12 ? 'Қазақша PDF ↗' : 'Түпнұсқа PDF ↗'}</a>` : ''}
           ${answer}
         </section>
       </aside>
@@ -566,6 +754,20 @@ async function reader(b, u, p) {
 
   if (typeof izPractice === 'object' && izPractice?.mount) {
     izPractice.mount(app, b, p, b !== 12 ? book.answer : null);
+  }
+
+  if ((needAudio && !hasAudioData) || typeof izPractice === 'undefined') {
+    ensureStudyAssets({ audio: needAudio, bookAudio: needAudio && b >= 14, practice: true }).then(() => {
+      if (request !== readerRequest) return;
+      const sideEl = app.querySelector('.side');
+      if (needAudio && sideEl && !app.querySelector('.lesson-audio')) {
+        const audioReady = b >= 14 ? Boolean(dkAudio?.[b]?.[audioNumber]) : single && b < 12;
+        if (audioReady) sideEl.prepend(createLessonAudio(b, audioNumber));
+      }
+      if (typeof izPractice === 'object' && izPractice?.mount) {
+        izPractice.mount(app, b, p, b !== 12 ? book.answer : null);
+      }
+    }).catch(() => {});
   }
 
   const $ = s => document.querySelector(s);
@@ -630,6 +832,13 @@ async function reader(b, u, p) {
   }
   $('#zoom').onclick = zoom;
   $('.pageimg img').onclick = zoom;
+  if ($('#zen-toggle')) {
+    $('#zen-toggle').onclick = () => {
+      const on = document.body.classList.toggle('iz-zen');
+      $('#zen-toggle').textContent = on ? '✕ Фокус' : '⛶ Фокус';
+      $('#zen-toggle').setAttribute('aria-pressed', String(on));
+    };
+  }
   if (!single) $('#jump').onsubmit = e => { e.preventDefault(); location.hash = url(Number($('#page').value)); };
 }
 
@@ -643,8 +852,12 @@ function route() {
   const subBar = document.querySelector('#sub-bar');
   if (subBar) subBar.hidden = !hash || view === 'courses' || view === 'about';
 
-  if (!(view === 'lesson' && books[b]?.units[u]) && !(view === 'read' && books[b])) activeReader = null;
+  if (!(view === 'lesson' && books[b]?.units[u]) && !(view === 'read' && books[b])) {
+    activeReader = null;
+    document.body.classList.remove('iz-zen');
+  }
   if (section) showBookSection(section);
+  else if (view === 'flashcards' && books[b]) flashcards(b);
   else if (view === 'search') globalSearch();
   else if (view === 'library') bookList();
   else if (view === 'saved' || view === 'progress') savedReading();
@@ -656,19 +869,39 @@ function route() {
   if (previousRoute !== family) window.scrollTo({ top: 0, behavior: 'instant' });
   previousRoute = family;
 
-  document.querySelectorAll('nav a').forEach(a => a.classList.toggle('on', a.hash === (view === 'about' ? '#about' : view === 'library' || view === 'read' ? '#library' : view === 'saved' || view === 'progress' ? '#saved' : view === 'search' ? '#search' : '#courses')));
-  if (view === 'about' || view === 'courses') document.getElementById(view === 'about' ? 'about-section' : 'course-list')?.scrollIntoView();
+  const activeNav = view === 'about' ? '#about' : view === 'library' || view === 'read' ? '#library' : view === 'saved' || view === 'progress' ? '#saved' : view === 'search' ? '#search' : '#courses';
+  document.querySelectorAll('nav a').forEach(a => a.classList.toggle('on', a.hash === activeNav));
+  if (view === 'about') document.getElementById('about-section')?.scrollIntoView();
 
   const heading = app.querySelector('h1')?.textContent;
   document.title = heading && heading !== 'Izilingua' ? heading + ' · Izilingua' : 'Izilingua · Ағылшын тілін қазақша үйрен';
 }
 
 window.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && document.body.classList.contains('iz-zen')) {
+    document.body.classList.remove('iz-zen');
+    const z = document.querySelector('#zen-toggle');
+    if (z) { z.textContent = '⛶ Фокус'; z.setAttribute('aria-pressed', 'false'); }
+    return;
+  }
   if (!activeReader || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.defaultPrevented ||
     event.target?.closest?.('input,textarea,select,audio,button,[contenteditable]')) return;
   const id = event.key === 'ArrowLeft' ? '#prev' : event.key === 'ArrowRight' ? '#next' : null;
   const button = id && document.querySelector(id);
   if (button && !button.disabled) { event.preventDefault(); button.click(); }
+});
+
+function applyTheme(theme) {
+  if (theme === 'sepia' || theme === 'dark') document.documentElement.dataset.theme = theme;
+  else { delete document.documentElement.dataset.theme; theme = 'day'; }
+  try { localStorage.setItem('iz-theme', theme); } catch {}
+  document.querySelectorAll('.theme-switch button').forEach(btn => {
+    btn.setAttribute('aria-pressed', String(btn.dataset.theme === theme));
+  });
+}
+try { applyTheme(localStorage.getItem('iz-theme') || 'day'); } catch { applyTheme('day'); }
+document.querySelectorAll('.theme-switch button').forEach(btn => {
+  btn.onclick = () => applyTheme(btn.dataset.theme);
 });
 
 const footerAuthor = document.querySelector('#footer-author');
