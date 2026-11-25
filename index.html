@@ -1,1 +1,97 @@
-<!doctype html><html lang="kk" class="access-locked"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#faf9f5"><title>Izilingua — Ағылшын тілін қазақша үйрен</title><link rel="icon" type="image/svg+xml" href="izilingua-mark.svg"><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="practice.css"></head><body><header><div class="bar"><a class="brand" href="#" aria-label="Izilingua · Басты бет"><img src="izilingua-mark.svg" alt="" width="40" height="40"><span>IZILINGUA</span></a><nav><a href="#courses">Курстар</a><a href="#library">Кітапхана</a><a href="#saved">Менің беттерім</a><a href="#search">Іздеу</a><a href="#about">Біз туралы</a></nav></div><div class="learner-bar"><span id="learner-account"></span><button type="button" id="learner-signout" class="soft">Шығу</button></div></header><div class="section-controls"><button id="site-back">← Артқа</button><button id="site-forward">Алға →</button><select aria-label="Бөлімге өту" id="section-picker"><option value="">Бөлімге өту…</option><option value="#courses">Басты бет</option><option value="#library">Кітапхана</option><option value="#saved">Менің беттерім</option><option value="#search">Іздеу</option></select></div><main id="app"></main><footer><b>Izilingua</b><span>English for Everyone · Қазақша оқу студиясы</span><a href="terms.html">Пайдаланушы келісімі</a><span id="footer-author"></span></footer><script src="books.js"></script><script src="grammar.js"></script><script src="vocabulary.js"></script><script src="audio-data.js"></script><script src="book-audio.js"></script><script src="lesson-audio.js"></script><script src="site-config.js"></script><script src="learner-access.js"></script><script src="practice.js"></script><script src="app.js"></script></body></html>
+<!doctype html>
+<html lang="kk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#193e32">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="description" content="Izilingua — English for Everyone сериясының 18 кітабы негізінде ағылшын тілін қазақша түсіндіретін тегін интерактивті оқу студиясы.">
+  <title>Izilingua — Ағылшын тілін қазақша үйрен</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="izilingua-mark.svg">
+  <link rel="apple-touch-icon" href="izilingua-mark.svg">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="practice.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="bar">
+      <a class="brand" href="#" aria-label="Izilingua · Басты бет">
+        <img src="izilingua-mark.svg" alt="" width="38" height="38">
+        <span class="brand-text">
+          <strong>IZILINGUA</strong>
+          <small>Қазақша оқу студиясы</small>
+        </span>
+      </a>
+      <nav aria-label="Негізгі мәзір">
+        <a href="#courses" data-nav="courses">Курстар</a>
+        <a href="#library" data-nav="library">Кітапхана</a>
+        <a href="#saved" data-nav="saved">Менің беттерім <span id="nav-saved-count" class="nav-pill" hidden>0</span></a>
+        <a href="#search" data-nav="search">Іздеу</a>
+        <a href="#about" data-nav="about">Біз туралы</a>
+      </nav>
+      <div class="theme-switch" role="group" aria-label="Оқу тақырыбы">
+        <button type="button" data-theme="day" title="Күндізгі режим" aria-label="Күндізгі режим">☀</button>
+        <button type="button" data-theme="sepia" title="Сепия режимі" aria-label="Сепия режимі">📜</button>
+        <button type="button" data-theme="dark" title="Қараңғы режим" aria-label="Қараңғы режим">🌙</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="sub-bar" id="sub-bar" hidden>
+    <div class="sub-bar-inner">
+      <div class="nav-history">
+        <button id="site-back" type="button" class="icon-btn" aria-label="Артқа">← Артқа</button>
+        <button id="site-forward" type="button" class="icon-btn" aria-label="Алға">Алға →</button>
+      </div>
+      <select aria-label="Бөлімге жылдам өту" id="section-picker">
+        <option value="">Бөлімге жылдам өту…</option>
+      </select>
+    </div>
+  </div>
+
+  <main id="app">
+    <div class="app-skeleton" aria-busy="true" aria-label="Жүктелуде">
+      <div class="sk-hero"></div>
+      <div class="sk-grid">
+        <div class="sk-card"></div>
+        <div class="sk-card"></div>
+        <div class="sk-card"></div>
+      </div>
+      <p class="sk-text">Кітаптар мен сабақтар жүктелуде…</p>
+    </div>
+    <noscript><p class="panel">Izilingua жұмыс істеуі үшін браузерде JavaScript қосулы болуы тиіс.</p></noscript>
+  </main>
+
+  <nav class="mobile-bottom-nav" aria-label="Мобильді мәзір">
+    <a href="#courses" data-nav="courses"><span>🏠</span><span>Курстар</span></a>
+    <a href="#library" data-nav="library"><span>📚</span><span>Кітапхана</span></a>
+    <a href="#search" data-nav="search"><span>🔍</span><span>Іздеу</span></a>
+    <a href="#saved" data-nav="saved"><span>👤</span><span>Менің</span></a>
+  </nav>
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <b>Izilingua</b>
+        <span>English for Everyone · Қазақша оқу студиясы</span>
+      </div>
+      <div class="footer-links">
+        <a href="#courses">Курстар</a>
+        <a href="#library">18 кітап</a>
+        <a href="#saved">Менің беттерім</a>
+        <a href="terms.html">Пайдаланушы келісімі</a>
+        <span id="footer-author"></span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="books.js"></script>
+  <script src="grammar.js"></script>
+  <script src="vocabulary.js"></script>
+  <script src="lesson-audio.js"></script>
+  <script src="site-config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
