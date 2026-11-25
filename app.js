@@ -240,7 +240,7 @@ function home() {
   }).join('');
 
   const bookCards = bookSections
-    .filter(() => courseFilter === 'all' || courseFilter === 'ref')
+    .filter(section => courseFilter === 'all' || courseFilter === section.route)
     .map(section => {
     const p0 = bookProgress(section.books[0].id);
     const p1 = bookProgress(section.books[1].id);
@@ -265,8 +265,8 @@ function home() {
   const filteredCourseOrder = courseOrder.filter(i => {
     if (courseFilter === 'levels') return i >= 1 && i <= 4;
     if (courseFilter === 'business') return i === 0 || i === 5;
-    if (courseFilter === 'ref') return i === 6;
-    return true;
+    if (courseFilter === 'grammar') return i === 6;
+    return courseFilter === 'all';
   });
 
   const cards = filteredCourseOrder.map(i => {
@@ -296,7 +296,9 @@ function home() {
     { id: 'all', label: 'Барлығы (9)' },
     { id: 'levels', label: 'Levels 1–4' },
     { id: 'business', label: 'Business English' },
-    { id: 'ref', label: 'Грамматика және Сөздік' }
+    { id: 'grammar', label: 'Грамматика' },
+    { id: 'vocabulary', label: 'Сөздік қор' },
+    { id: 'phrases', label: 'Фразалық етістіктер мен идиомалар' }
   ];
 
   app.innerHTML = `<section class="hero cover-hero">
