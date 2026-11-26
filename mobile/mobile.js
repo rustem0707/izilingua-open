@@ -53,7 +53,7 @@ function loadOnce(src) {
 async function ensureAssets({ audio = false, bookAudio = false, practice = false } = {}) {
   if ((audio || bookAudio) && typeof dkAudio === 'undefined') await loadOnce('../audio-data.js');
   if (bookAudio && (typeof dkAudio === 'undefined' || !dkAudio?.[14])) await loadOnce('../book-audio.js');
-  if (practice && typeof izPractice === 'undefined') await loadOnce('../practice.js');
+  if (practice && typeof izPractice === 'undefined') await loadOnce('../practice.js?v=20261126');
 }
 
 function applyTheme(t) {

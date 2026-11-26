@@ -37,7 +37,7 @@ async function ensureStudyAssets({ audio = false, bookAudio = false, practice = 
     tasks.push(loadScriptOnce('../book-audio.js'));
   }
   if (practice && typeof izPractice === 'undefined') {
-    tasks.push(loadScriptOnce('../practice.js'));
+    tasks.push(loadScriptOnce('../practice.js?v=20261126'));
   }
   if (tasks.length) await Promise.all(tasks);
 }
