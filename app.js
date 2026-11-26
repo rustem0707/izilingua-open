@@ -294,17 +294,21 @@ function home() {
 
   app.innerHTML = `<section class="hero cover-hero shelf-hero">
     <div class="heroCopy">
-      <span class="hero-badge">ENGLISH FOR EVERYONE · 18 КІТАП</span>
-      <h1>Ағылшын тілін <em>қазақша</em> түсіндіретін оқу студиясы</h1>
-      <p>Деңгейіңізге сай кітап таңдап, қазақша түсіндірмелерді оқыңыз, түпнұсқа аудио тыңдаңыз және интерактивті жаттығулармен бекітіңіз.</p>
-      <div class="hero-actions">
-        <a class="btn light" href="#courses">Курстарды бастау</a>
-        <a class="btn outline-light" href="#library">18 кітап сөресі</a>
+      <div class="hero-main">
+        <span class="hero-badge">ENGLISH FOR EVERYONE · 18 КІТАП</span>
+        <h1>Ағылшын тілін <em>қазақша</em> түсіндіретін оқу студиясы</h1>
+        <p>Деңгейіңізге сай кітап таңдап, қазақша түсіндірмелерді оқыңыз, түпнұсқа аудио тыңдаңыз және интерактивті жаттығулармен бекітіңіз.</p>
       </div>
-      ${last ? `<a class="resume-card" href="${last}">
-        <div><small>Соңғы оқылған бет · Жалғастыру</small><b>${esc(readingTitle(state.last))} (${state.last.p}-бет)</b></div>
-        <span>→</span>
-      </a>` : ''}
+      <div class="hero-side">
+        <div class="hero-actions">
+          <a class="btn light" href="#courses">Курстарды бастау</a>
+          <a class="btn outline-light" href="#library">18 кітап сөресі</a>
+        </div>
+        ${last ? `<a class="resume-card" href="${last}">
+          <div><small>Соңғы оқылған бет · Жалғастыру</small><b>${esc(readingTitle(state.last))} (${state.last.p}-бет)</b></div>
+          <span>→</span>
+        </a>` : ''}
+      </div>
     </div>
     <div id="home-books" class="shelf-stage" role="region" aria-label="18 кітаптың 3D сөресі">
       <div class="shelf-meta">

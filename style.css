@@ -705,17 +705,34 @@ html[data-theme="dark"] .btn-del { color: #f2a089; }
 .cover-hero.shelf-hero {
   display: grid;
   grid-template-columns: 1fr;
-  padding: clamp(24px, 3.5vw, 44px) clamp(18px, 3.5vw, 44px) 0;
-  gap: 18px;
+  padding: clamp(20px, 2.6vw, 30px) clamp(18px, 3.5vw, 44px) 0;
+  gap: 8px;
 }
 .shelf-hero .heroCopy {
   padding: 0;
-  max-width: 720px;
+  max-width: none;
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(260px, 0.9fr);
+  align-items: center;
+  gap: 16px clamp(18px, 3vw, 40px);
+}
+.hero-side {
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+}
+.hero-side .hero-actions,
+.hero-side .resume-card {
+  margin-top: 0;
+  width: 100%;
+}
+@media (max-width: 900px) {
+  .shelf-hero .heroCopy { grid-template-columns: 1fr; gap: 14px; }
 }
 .shelf-stage {
   position: relative;
   margin-inline: calc(-1 * clamp(18px, 3.5vw, 44px));
-  padding: 18px 16px 0;
+  padding: 6px 16px 0;
   overflow: hidden;
   user-select: none;
 }

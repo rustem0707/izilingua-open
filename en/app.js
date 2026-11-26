@@ -292,17 +292,21 @@ function home() {
 
   app.innerHTML = `<section class="hero cover-hero shelf-hero">
     <div class="heroCopy">
-      <span class="hero-badge">ENGLISH FOR EVERYONE · 18 BOOKS</span>
-      <h1>Interactive <em>English</em> self-study studio</h1>
-      <p>Choose your level, study visual lessons, listen to native UK & US audio, and practice with interactive exercises.</p>
-      <div class="hero-actions">
-        <a class="btn light" href="#courses">Explore Courses</a>
-        <a class="btn outline-light" href="#library">18 Books Shelf</a>
+      <div class="hero-main">
+        <span class="hero-badge">ENGLISH FOR EVERYONE · 18 BOOKS</span>
+        <h1>Interactive <em>English</em> self-study studio</h1>
+        <p>Choose your level, study visual lessons, listen to native UK & US audio, and practice with interactive exercises.</p>
       </div>
-      ${last ? `<a class="resume-card" href="${last}">
-        <div><small>Continue Reading</small><b>${esc(readingTitle(state.last))} (Page ${state.last.p})</b></div>
-        <span>→</span>
-      </a>` : ''}
+      <div class="hero-side">
+        <div class="hero-actions">
+          <a class="btn light" href="#courses">Explore Courses</a>
+          <a class="btn outline-light" href="#library">18 Books Shelf</a>
+        </div>
+        ${last ? `<a class="resume-card" href="${last}">
+          <div><small>Continue Reading</small><b>${esc(readingTitle(state.last))} (Page ${state.last.p})</b></div>
+          <span>→</span>
+        </a>` : ''}
+      </div>
     </div>
     <div id="home-books" class="shelf-stage" role="region" aria-label="18 books 3D shelf">
       <div class="shelf-meta">
