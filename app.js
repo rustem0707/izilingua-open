@@ -191,6 +191,12 @@ function configuredInstagram(value) {
 }
 
 const instagram = configuredInstagram(typeof siteConfig === 'object' ? siteConfig.instagram : '');
+const whatsappDigits = typeof siteConfig === 'object' ? String(siteConfig.whatsapp ?? '').replace(/\D/g, '') : '';
+const whatsappHref = whatsappDigits ? 'https://wa.me/' + whatsappDigits : '';
+const whatsappDisplay = whatsappDigits.length === 11 && whatsappDigits[0] === '7'
+  ? `+7 ${whatsappDigits.slice(1, 4)} ${whatsappDigits.slice(4, 7)} ${whatsappDigits.slice(7, 9)} ${whatsappDigits.slice(9, 11)}`
+  : (whatsappDigits ? '+' + whatsappDigits : '');
+const whatsappIcon = '<svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12 2a10 10 0 0 0-8.66 15l-1.15 4.2 4.3-1.13A10 10 0 1 0 12 2zm5.52 14.18c-.23.65-1.35 1.24-1.87 1.32-.48.07-1.08.1-1.74-.11-.4-.13-.92-.3-1.58-.58-2.78-1.2-4.6-4.01-4.74-4.2-.14-.18-1.13-1.5-1.13-2.86 0-1.36.71-2.03.97-2.31.26-.28.56-.35.75-.35h.54c.17 0 .41-.07.64.49.24.58.81 1.98.88 2.13.07.14.12.31.02.5-.09.18-.14.3-.28.46-.14.16-.3.36-.42.48-.14.14-.29.29-.12.57.16.28.73 1.21 1.58 1.96 1.09.97 2 1.27 2.28 1.41.28.14.44.12.6-.07.17-.19.7-.82.89-1.1.19-.28.37-.23.63-.14.26.09 1.64.77 1.92.91.28.14.47.21.54.33.07.12.07.68-.16 1.33z"/></svg>';
 const feedbackWebApp = typeof siteConfig === 'object' ? String(siteConfig.feedbackWebApp ?? '').trim() : '';
 const feedbackEnabled = /^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(feedbackWebApp);
 const instagramIcon = '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.4" cy="6.8" r=".8" fill="currentColor" stroke="none"/></svg>';
@@ -200,12 +206,20 @@ function instagramLink(label) {
 }
 
 function feedbackSection() {
+  const waBlock = whatsappHref
+    ? `<div class="feedback-wa">
+         <p class="muted" style="margin:0 0 12px">Сұрақтарыңыз немесе ұсыныстарыңыз болса, WhatsApp арқылы тікелей жаза аласыз:</p>
+         <a class="whatsapp-btn" href="${esc(whatsappHref)}" target="_blank" rel="noopener noreferrer">${whatsappIcon}<span>WhatsApp-қа жазу</span></a>
+       </div>`
+    : '';
+  const formBlock = feedbackEnabled
+    ? `<iframe class="feedback-frame" title="Izilingua сайтына пікір қалдыру" src="${esc(feedbackWebApp)}" loading="lazy" referrerpolicy="no-referrer"></iframe>
+       <p style="margin-top:10px"><a class="back" href="${esc(feedbackWebApp)}" target="_blank" rel="noopener noreferrer">Форманы бөлек ашу ↗</a></p>`
+    : (waBlock ? '' : '<p class="muted">Пікір жіберу формасы әзірге қосылмаған.</p>');
   return `<section class="section feedback-section" aria-labelledby="feedback-heading">
     <h2 id="feedback-heading">Кері байланыс</h2>
-    ${feedbackEnabled
-      ? `<iframe class="feedback-frame" title="Izilingua сайтына пікір қалдыру" src="${esc(feedbackWebApp)}" loading="lazy" referrerpolicy="no-referrer"></iframe>
-         <p style="margin-top:10px"><a class="back" href="${esc(feedbackWebApp)}" target="_blank" rel="noopener noreferrer">Форманы бөлек ашу ↗</a></p>`
-      : '<p class="muted">Пікір жіберу формасы әзірге қосылмаған.</p>'}
+    ${waBlock}
+    ${formBlock}
   </section>`;
 }
 

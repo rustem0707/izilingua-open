@@ -946,3 +946,21 @@ html[data-theme="dark"] .btn-del { color: #f2a089; }
 @media (prefers-reduced-motion: reduce) {
   .book3d { transition: none; }
 }
+.whatsapp-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 18px;
+  border-radius: 12px;
+  background: #1d9a49;
+  color: #fff;
+  font-weight: 700;
+  font-size: 14.5px;
+  box-shadow: 0 6px 16px rgba(29, 154, 73, 0.24);
+  transition: transform 0.16s ease, background 0.16s ease;
+}
+.whatsapp-btn:hover {
+  background: #17823d;
+  transform: translateY(-1px);
+  color: #fff;
+}
