@@ -205,6 +205,7 @@ const izPractice = (() => {
     if (b === 12 || (book && (p < (book.min ?? 12) || p >= book.key))) return;
 
     const layout = host.querySelector('.lessonlayout');
+    const readerEl = host.querySelector('.reader');
     const side = layout?.querySelector(':scope > .side');
     const lessonAudio = side?.querySelector(':scope > .lesson-audio');
     const exercisePicker = lessonAudio?.querySelector('.audio-exercise');
@@ -310,7 +311,7 @@ const izPractice = (() => {
         pausePractice();
         restoreLessonAudio();
         layout?.classList.remove('iz-practice-open');
-        host.append(block);
+        (readerEl || host).append(block);
         block.scrollIntoView({block:'nearest'});
       }
       open.focus({preventScroll:true});
@@ -319,7 +320,7 @@ const izPractice = (() => {
     open.setAttribute('aria-expanded','false');
     open.setAttribute('aria-controls',panel.id);
     block.append(open,panel);
-    host.append(block);
+    (readerEl || host).append(block);
     mounted.set(host,{
       key,block,dispose() {
         pausePractice();

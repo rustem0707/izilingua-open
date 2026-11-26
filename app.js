@@ -26,7 +26,7 @@ async function ensureStudyAssets({ audio = false, bookAudio = false, practice = 
   const tasks = [];
   if ((audio || bookAudio) && typeof dkAudio === 'undefined') await loadScriptOnce('audio-data.js');
   if (bookAudio && (typeof dkAudio === 'undefined' || !dkAudio?.[14])) tasks.push(loadScriptOnce('book-audio.js'));
-  if (practice && typeof izPractice === 'undefined') tasks.push(loadScriptOnce('practice.js?v=20261126'));
+  if (practice && typeof izPractice === 'undefined') tasks.push(loadScriptOnce('practice.js?v=20261126b'));
   if (tasks.length) await Promise.all(tasks);
 }
 const app = document.querySelector('#app');
@@ -604,7 +604,6 @@ async function reader(b, u, p) {
       </section>
       <aside class="side">${pairPanel}
         ${single ? '' : `<section class="panel"><h3>Бетке өту</h3><form id="jump"><label for="page">Бет нөмірі</label><div class="row"><input type="number" min="1" max="${end}" required id="page" value="${p}"><button>Ашу</button></div></form>${lessonToResume ? `<a class="back" href="${lessonToResume}">Сабаққа оралу</a>` : ''}</section>`}
-        ${single ? `<section class="panel"><h3>Менің жазбам</h3><textarea id="lesson-note" placeholder="Осы сабақ бойынша ереже не жаңа сөздерді жазып алыңыз...">${esc(state.notes[unitKey] ?? '')}</textarea><small id="note-status" class="muted"></small></section>` : ''}
         <section class="panel">
           <h3>Қосымша</h3>
           <a class="back" href="#course/${b}">Кітап мазмұны</a>

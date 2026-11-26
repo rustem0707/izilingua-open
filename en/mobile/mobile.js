@@ -191,12 +191,11 @@ async function renderReader(b, u, p) {
       </div>
       <img src="${pageSrc(b, p)}" alt="Page ${p}">
     </div>
+    <div class="lessonlayout" style="display:block"><div class="side" id="m-practice-slot"></div></div>
+    <div id="m-audio-slot"></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       ${pairId >= 0 ? `<a class="m-btn" style="flex:1" href="#lesson/${pairId}/${u}">${b % 2 === 0 ? title(pairId) + ' →' : '← ' + title(pairId)}</a>` : ''}
-    </div>
-    <div id="m-audio-slot"></div>
-    <div class="lessonlayout" style="display:block"><div class="side" id="m-practice-slot"></div></div>
-    ${single ? `<div class="m-card"><b>My Notes</b><textarea id="m-note" class="m-input" style="margin-top:8px;min-height:80px" placeholder="Rules or vocabulary...">${esc(state.notes[unitKey] ?? '')}</textarea></div>` : ''}`;
+    </div>`;
 
   if (single && document.querySelector('#m-done')) {
     document.querySelector('#m-done').onclick = () => {

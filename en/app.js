@@ -37,7 +37,7 @@ async function ensureStudyAssets({ audio = false, bookAudio = false, practice = 
     tasks.push(loadScriptOnce('../book-audio.js'));
   }
   if (practice && typeof izPractice === 'undefined') {
-    tasks.push(loadScriptOnce('../practice.js?v=20261126'));
+    tasks.push(loadScriptOnce('../practice.js?v=20261126b'));
   }
   if (tasks.length) await Promise.all(tasks);
 }
@@ -721,7 +721,6 @@ async function reader(b, u, p) {
       <aside class="side">
         ${pairPanel}
         ${single ? '' : `<section class="panel"><h3>Go to Page</h3><form id="jump"><label for="page">Page number</label><div class="row"><input type="number" min="1" max="${end}" required id="page" value="${p}"><button>Open</button></div></form>${lessonToResume ? `<a class="back" href="${lessonToResume}">Back to Lesson</a>` : ''}</section>`}
-        ${single ? `<section class="panel"><h3>My Notes</h3><textarea id="lesson-note" placeholder="Write rules, vocabulary, or examples here...">${esc(state.notes[unitKey] ?? '')}</textarea><small id="note-status" class="muted"></small></section>` : ''}
         <section class="panel">
           <h3>More</h3>
           <a class="back" href="#course/${b}">Book Contents</a>
@@ -895,6 +894,23 @@ const sectionPicker = document.querySelector('#section-picker');
 for (const i of courseOrder) sectionPicker.add(new Option(levels[i].name, '#course/' + (2 * i)));
 for (const section of bookSections) sectionPicker.add(new Option(section.title, '#' + section.route));
 sectionPicker.onchange = () => { if (sectionPicker.value) location.hash = sectionPicker.value; sectionPicker.selectedIndex = 0; };
+
+function configuredInstagram(value) {
+  const handle = String(value ?? '').trim().replace(/^@/, '');
+  if (/^[A-Za-z0-9._]{1,30}$/.test(handle)) return 'https://www.instagram.com/' + handle + '/';
+  try {
+    const url = new URL(handle);
+    if (url.protocol === 'https:' && /^(www\.)?instagram\.com$/.test(url.hostname) &&
+      /^\/[A-Za-z0-9._]{1,30}\/?$/.test(url.pathname)) return url.origin + url.pathname;
+  } catch {}
+  return '';
+}
+const instagram = configuredInstagram(typeof siteConfig === 'object' ? siteConfig.instagram : '');
+const instagramIcon = '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.4" cy="6.8" r=".8" fill="currentColor" stroke="none"/></svg>';
+const footerAuthor = document.querySelector('#footer-author');
+if (footerAuthor && instagram) {
+  footerAuthor.innerHTML = `<a class="author-instagram" href="${esc(instagram)}" target="_blank" rel="noopener noreferrer" aria-label="Author · Instagram">${instagramIcon}<span>Author · Instagram</span></a>`;
+}
 
 const backButton = document.querySelector('#site-back');
 const forwardButton = document.querySelector('#site-forward');
