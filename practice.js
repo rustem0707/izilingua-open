@@ -26,6 +26,8 @@ const legacy = [
   ];
 
 const izPractice = (() => {
+  const isEn = document.documentElement.lang === 'en';
+  const t = (kk, en) => isEn ? en : kk;
   const rootPath = new URL('.', document.currentScript.src || location.href).href;
   const make=(tag,text,cls)=>{const el=document.createElement(tag); if(text!=null)el.textContent=text;if(cls)el.className=cls;return el;};
   const btn=(text,fn)=>{const b=make('button',text);b.type='button';b.onclick=fn;return b;};
@@ -44,27 +46,27 @@ const izPractice = (() => {
   const slug={6:'level-one-beginner',7:'level-one-beginner-practice',8:'level-two-beginner',9:'level-two-beginner-practice'};
   function audioPlayer(host,b,id,tracks){
     if(!tracks?.length)return;
-    const wrap=make('details',null,'iz-audio'),summary=make('summary','Аудионы тыңдау');
+    const wrap=make('details',null,'iz-audio'),summary=make('summary',t('Аудионы тыңдау','Listen to audio'));
     wrap.append(summary);wrap.addEventListener('toggle',()=>{
       if(!wrap.open){wrap.querySelector('audio')?.pause();return;}
       if(wrap.children.length>1)return;
       const menu=make('select'),player=make('audio');player.controls=true;player.preload='none';
-      menu.setAttribute('aria-label','Аудиожазба');
-      tracks.forEach(([name,path],i)=>menu.add(new Option((name==='Мысал'?name:'Аудио '+name),String(i))));
+      menu.setAttribute('aria-label',t('Аудиожазба','Audio track'));
+      tracks.forEach(([name,path],i)=>menu.add(new Option((name==='Мысал'?t('Мысал','Example'):t('Аудио ','Track ')+name),String(i))));
       const set=()=>{player.src='https://apps-api.dk.com/efe'+tracks[Number(menu.value)][1];};menu.onchange=set;set();
-      const link=make('a','DK сайтында тыңдау');link.target='_blank';link.rel='noopener';link.href='https://apps.dk.com/efe/en/audio/'+slug[b]+'/'+id.replace('.','-');
+      const link=make('a',t('DK сайтында тыңдау','Listen on DK website'));link.target='_blank';link.rel='noopener';link.href='https://apps.dk.com/efe/en/audio/'+slug[b]+'/'+id.replace('.','-');
       wrap.append(menu,player);if(slug[b])wrap.append(link);
     });host.append(wrap);
   }
   function speaking(host,key){
-    const box=make('details',null,'iz-free'),summary=make('summary','Еркін жазу және сөйлеу');
-    const text=make('textarea');text.placeholder='Жауабыңызды жазыңыз…';text.setAttribute('aria-label','Еркін жауап');text.value=load(key+'/note');text.oninput=()=>save(key+'/note',text.value);
+    const box=make('details',null,'iz-free'),summary=make('summary',t('Еркін жазу және сөйлеу','Free Writing & Speaking'));
+    const text=make('textarea');text.placeholder=t('Жауабыңызды жазыңыз…','Write your answer…');text.setAttribute('aria-label',t('Еркін жауап','Free answer'));text.value=load(key+'/note');text.oninput=()=>save(key+'/note',text.value);
     const status=make('span');status.role='status';const player=make('audio');player.controls=true;player.hidden=true;
-    const record=btn('Дауыс жазу',start);let recorder,stream,url;
+    const record=btn(t('Дауыс жазу','Record voice'),start);let recorder,stream,url;
     const stop=()=>{if(recorder?.state==='recording')recorder.stop();stream?.getTracks().forEach(t=>t.stop());};
     const release=()=>{stop();if(url)URL.revokeObjectURL(url);};
     const observer=new MutationObserver(()=>{if(!box.isConnected){release();observer.disconnect();}});observer.observe(document.body,{childList:true,subtree:true});
-    const download=make('a','Дауысты жүктеу');download.hidden=true;
+    const download=make('a',t('Дауысты жүктеу','Download recording'));download.hidden=true;
     async function start(){
       if(recorder?.state==='recording'){stop();return;}
       record.disabled=true;
@@ -77,17 +79,17 @@ const izPractice = (() => {
         recorder.onstop=()=>{if(url)URL.revokeObjectURL(url);const blob=new Blob(chunks,{type:recorder.mimeType});
           stream.getTracks().forEach(t=>t.stop());if(!box.isConnected)return;
           url=URL.createObjectURL(blob);player.src=url;player.hidden=false;download.href=url;download.download='speaking-'+key.replaceAll('/','-')+(blob.type.includes('mp4')?'.m4a':'.webm');download.hidden=false;
-          status.textContent='Жазбаны тыңдап, қажет болса жүктеп алыңыз.';record.textContent='Қайта жазу';};
-        recorder.start();record.textContent='Жазуды тоқтату';status.textContent='Дауыс жазылып жатыр…';
-      }catch{stop();status.textContent='Микрофонды пайдалану үшін браузерден рұқсат беріп, бетті HTTPS немесе localhost арқылы ашыңыз.';}
+          status.textContent=t('Жазбаны тыңдап, қажет болса жүктеп алыңыз.','Listen to your recording and download it if needed.');record.textContent=t('Қайта жазу','Record again');};
+        recorder.start();record.textContent=t('Жазуды тоқтату','Stop recording');status.textContent=t('Дауыс жазылып жатыр…','Recording…');
+      }catch{stop();status.textContent=t('Микрофонды пайдалану үшін браузерден рұқсат беріп, бетті HTTPS немесе localhost арқылы ашыңыз.','Allow microphone access and open the page via HTTPS or localhost.');}
       finally{record.disabled=false;}
     }
-    box.append(summary,text,record,status,player,download,make('p','Өзіңізді тексеріңіз: тапсырмаға толық жауап бердіңіз бе? Сөйлемдегі сөздердің реті дұрыс па? Сөйлегенде сөздер анық естіле ме?'));host.append(box);
+    box.append(summary,text,record,status,player,download,make('p',t('Өзіңізді тексеріңіз: тапсырмаға толық жауап бердіңіз бе? Сөйлемдегі сөздердің реті дұрыс па? Сөйлегенде сөздер анық естіле ме?','Self-check: Did you answer fully? Is your word order correct? Is your pronunciation clear?')));host.append(box);
   }
   function markedImage(container, book, page, rect, cover) {
     const canvas=make('canvas');
     canvas.setAttribute('role','img');
-    canvas.setAttribute('aria-label', cover ? 'Сөздің беттегі орны' : 'Кітаптағы жауап кілті');
+    canvas.setAttribute('aria-label', cover ? t('Сөздің беттегі орны','Word location on page') : t('Кітаптағы жауап кілті','Answer key from book'));
     canvas.style.cssText='max-width:100%;height:auto;display:block;margin:.5rem 0';
     container.append(canvas);
     const img=new Image();
@@ -105,22 +107,22 @@ const izPractice = (() => {
         canvas.getContext('2d').drawImage(img,x*img.naturalWidth,y*img.naturalHeight,canvas.width,canvas.height,0,0,canvas.width,canvas.height);
       }
     };
-    img.onerror=()=>canvas.replaceWith(make('p','Сурет ашылмады. Кітаптың '+page+'-бетін қараңыз.'));
-    img.src=window.izPreviewPages?.[book+'/'+page] || rootPath+'pages/'+book+'/'+page+'.webp';
+    img.onerror=()=>canvas.replaceWith(make('p',t('Сурет ашылмады. Кітаптың '+page+'-бетін қараңыз.','Image failed to load. Check page '+page+' in the book.')));
+    img.src=window.izPreviewPages?.[book+'/'+page] || rootPath+(isEn?'en/pages/':'pages/')+book+'/'+page+'.webp';
   }
   function lessonMenu(panel,book,b,p,visible) {
     const others=(book?.lessonPages?.[p]||[]).filter(id=>!visible.includes(id));
     if(!others.length)return;
-    const label=make('label','Сабақтағы басқа жаттығуды таңдау');
+    const label=make('label',t('Сабақтағы басқа жаттығуды таңдау','Choose another exercise in this lesson'));
     const menu=make('select'), body=make('div');
-    menu.add(new Option('Кітаптағы жаттығу нөмірі',''));
+    menu.add(new Option(t('Кітаптағы жаттығу нөмірі','Exercise number'),''));
     for(const id of others)menu.add(new Option(id,id));
     menu.onchange=()=>{body.replaceChildren();if(menu.value)render(body,b,menu.value,book.items[menu.value]);};
     label.append(menu);panel.append(label,body);
   }
 
   function render(host,b,id,ex,lessonAudio){
-    const pane=make('section',null,'iz-ex'),head=make('h3',id+(ex.title?' · '+ex.title.charAt(0)+ex.title.slice(1).toLowerCase(): ' · Жаттығу'));
+    const pane=make('section',null,'iz-ex'),head=make('h3',id+(ex.title?' · '+ex.title.charAt(0)+ex.title.slice(1).toLowerCase(): t(' · Жаттығу',' · Exercise')));
     pane.append(head);
     const [unit,exercise]=id.split('.');
     const source=typeof dkAudio!=='undefined'&&dkAudio[b]?.[unit]?.[exercise];
@@ -129,9 +131,9 @@ const izPractice = (() => {
     else audioPlayer(pane,b,id,tracks);
     if(!ex.rows){host.append(pane);return;}
     const classic=b===6&&['13.4','13.5','13.6'].includes(id)?legacy.find(s=>s.number===id):null;
-    if(classic)head.textContent=id+' · '+classic.title;
+    if(classic)head.textContent=id+' · '+(isEn?{'13.4':'Choose the wrong word','13.5':'Fill in the gaps using the words','13.6':'Fill in the gaps and say the sentences aloud'}[id]:classic.title);
     const rows=classic?classic.rows.map(([p,a,o],i)=>({a:[a],label:p.replace('%','___'),options:classic.kind==='bank'?['eat','eats','get','leave','leaves','starts']:o?(i%2?[o,a]:[a,o]):null})):ex.rows;
-    if(!classic&&!ex.reference)pane.append(make('p',ex.choices?'Кітаптағы нөмірге қарап, сәйкес нұсқаны таңдаңыз.':'Кітаптағы нөмір бойынша жауап енгізіңіз. Кілтте толық сөйлем берілсе, сөйлемді толық жазуға болады.','iz-hint'));
+    if(!classic&&!ex.reference)pane.append(make('p',ex.choices?t('Кітаптағы нөмірге қарап, сәйкес нұсқаны таңдаңыз.','Look at the number in the book and choose the matching option.'):t('Кітаптағы нөмір бойынша жауап енгізіңіз. Кілтте толық сөйлем берілсе, сөйлемді толық жазуға болады.','Enter your answer by the number in the book. If the key shows a full sentence, you can type the full sentence.'),'iz-hint'));
     const bank=[...new Set(rows.map(r=>r.a?.[0]).filter(Boolean))].sort();
     const order=/ретке|ретімен қой|ретімен орналастыр|order|rearrange|unscrambl/i.test(ex.title)&&!/listen|audio|picture|image|hear|number/i.test(ex.title);
     const match=/сәйкестендір|match|pair/i.test(ex.title)&&bank.length>1&&bank.length<=23&&rows.every(r=>r.a.length);
@@ -141,29 +143,29 @@ const izPractice = (() => {
       const row=make('div',null,'iz-row'),label=make('label',(r.label?(ex.choices&&r.label? r.label:(i+1)+'. '+r.label):String(i+1)+'.'));
       const key=b+'/'+id+'/'+i, list=r.options||ex.choices||(match?bank:null);
       const input=make(list?'select':'input');input.id='iz-'+b+'-'+id.replace('.','-')+'-'+i;label.htmlFor=input.id;input.lang='en';
-      if(list){input.add(new Option('Таңдаңыз',''));list.forEach(a=>input.add(new Option(a,a)));}
-      else {input.placeholder='Жауабыңыз';input.autocomplete='off';input.spellcheck=false;}
+      if(list){input.add(new Option(t('Таңдаңыз','Select'),''));list.forEach(a=>input.add(new Option(a,a)));}
+      else {input.placeholder=t('Жауабыңыз','Your answer');input.autocomplete='off';input.spellcheck=false;}
       input.value=load(key);const msg=make('small');msg.id=input.id+'-info';input.setAttribute('aria-describedby',msg.id);
       input.oninput=()=>{save(key,input.value);row.removeAttribute('data-status');msg.textContent='';score.textContent='';};
       row.append(label,input,msg);
-      if(r.rect){const box=make('details');box.append(make('summary','Суреттен көру'));box.ontoggle=()=>{if(box.open&&box.children.length===1)markedImage(box,b,Number(id.slice(1)),r.rect,true);};row.append(box);}
+      if(r.rect){const box=make('details');box.append(make('summary',t('Суреттен көру','Show on page')));box.ontoggle=()=>{if(box.open&&box.children.length===1)markedImage(box,b,Number(id.slice(1)),r.rect,true);};row.append(box);}
       if(order&&!list&&r.a[0]?.includes(' ')){
         const tokens=r.a[0].split(/\s+/);if(tokens.length<=20){
-          const chips=make('details',null,'iz-chips');chips.append(make('summary','Сөздерді ретімен таңдау'));
-          const clear=btn('Тазалау',()=>{input.value='';input.oninput();chips.querySelectorAll('button').forEach(e=>e.disabled=false);});
+          const chips=make('details',null,'iz-chips');chips.append(make('summary',t('Сөздерді ретімен таңдау','Tap words in order')));
+          const clear=btn(t('Тазалау','Clear'),()=>{input.value='';input.oninput();chips.querySelectorAll('button').forEach(e=>e.disabled=false);});
           const sorted=tokens.map((word,i)=>({word,i})).sort((a,b)=>a.word.localeCompare(b.word)||a.i-b.i);
           sorted.forEach(({word})=>{const c=btn(word,()=>{input.value=(input.value+' '+word).trim();input.oninput();c.disabled=true;});chips.append(c);});chips.append(clear);row.append(chips);
         }
       }
       pane.append(row);return {row,input,r,msg};
     });
-    const keyBox=make('details',null,'iz-key');keyBox.append(make('summary','Түпнұсқа жауап кілтін ашу'));
+    const keyBox=make('details',null,'iz-key');keyBox.append(make('summary',t('Түпнұсқа жауап кілтін ашу','Show Answer Key')));
     keyBox.ontoggle=()=>{if(!keyBox.open||keyBox.children.length>1)return;
       if(ex.reference){for(const [i,r] of rows.entries())keyBox.append(make('p',(i+1)+'. '+r.a.join(' / ')));return;}
       if(ex.clips){for(const [page,...rect] of ex.clips)markedImage(keyBox,b,page,rect,false);return;}
-      const img=make('img');img.src=rootPath+'keys/'+b+'/'+id+'.webp';img.alt=id+' жаттығуының жауаптары, '+ex.key+'-бет';keyBox.append(img);};
+      const img=make('img');img.src=rootPath+'keys/'+b+'/'+id+'.webp';img.alt=id+t(' жаттығуының жауаптары, '+ex.key+'-бет',' exercise answers, page '+ex.key);keyBox.append(img);};
     const actions=make('div',null,'iz-practice-actions');
-    const clearWrong=btn('Қатені тазалау',()=>{
+    const clearWrong=btn(t('Қатені тазалау','Clear errors'),()=>{
       for(const {row,input,msg} of controls){
         if(row.dataset.status==='different'){
           input.value='';save(b+'/'+id+'/'+controls.findIndex(c=>c.input===input),'');
@@ -173,7 +175,7 @@ const izPractice = (() => {
       score.textContent='';
     });
     clearWrong.className='iz-clear-wrong';
-    actions.append(btn('Тексеру',()=>{
+    actions.append(btn(t('Тексеру','Check'),()=>{
       let good=0,empty=0,review=0;const used=new Set();
       for(const {row,input,r,msg} of controls){
         const value=norm(input.value);let s=!value?'empty':!r.a.length?'review':r.a.some(a=>norm(a)===value)?'good':'different';
@@ -182,10 +184,10 @@ const izPractice = (() => {
           const found=rows.findIndex((candidate,n)=>!used.has(n)&&candidate.a.some(a=>norm(a)===value));
           s=found>=0?'good':'different';if(found>=0)used.add(found);
         }
-        msg.textContent={empty:'Жауап енгізілмеді',review:'Жауабыңызды түпнұсқа кілтпен салыстырыңыз',good:'✓ Дұрыс',different:'Кілтпен сәйкес келмеді'}[s];row.dataset.status=s;
+        msg.textContent={empty:t('Жауап енгізілмеді','No answer entered'),review:t('Жауабыңызды түпнұсқа кілтпен салыстырыңыз','Compare your answer with the answer key'),good:t('✓ Дұрыс','✓ Correct'),different:t('Кілтпен сәйкес келмеді','Does not match the key')}[s];row.dataset.status=s;
         if(s==='good')good++;if(s==='empty')empty++;if(s==='review')review++;
       }
-      score.textContent='Дұрыс: '+good+' / '+rows.length+' · Сәйкес келмеді: '+(rows.length-good-empty-review)+' · Бос: '+empty+(review?' · Өзіңіз салыстырасыз: '+review:'');
+      score.textContent=t('Дұрыс: ','Correct: ')+good+' / '+rows.length+t(' · Сәйкес келмеді: ',' · Incorrect: ')+(rows.length-good-empty-review)+t(' · Бос: ',' · Empty: ')+empty+(review?t(' · Өзіңіз салыстырасыз: ',' · Self-check: ')+review:'');
     }),clearWrong);
     pane.append(actions,score,keyBox);host.append(pane);
   }
@@ -243,7 +245,7 @@ const izPractice = (() => {
             const controls = body.querySelector('.iz-audio');
             if (controls) {
               const otherAudio = make('details',null,'iz-other-audio');
-              otherAudio.append(make('summary','Сабақтың басқа аудиожазбалары'),lessonAudio);
+              otherAudio.append(make('summary',t('Сабақтың басқа аудиожазбалары','Other lesson audio tracks')),lessonAudio);
               controls.after(otherAudio);
             } else {
               body.querySelector('h3').after(lessonAudio);
@@ -263,9 +265,9 @@ const izPractice = (() => {
       } else {
         if (lessonAudio) panel.append(lessonAudio);
         if (book && !book.lessonPages?.[p]?.length) {
-          panel.append(make('p','Бұл бетте үлгі мен оқу материалы берілген. Өз мысалыңызды жазып немесе дауыстап айтып көріңіз.'));
+          panel.append(make('p',t('Бұл бетте үлгі мен оқу материалы берілген. Өз мысалыңызды жазып немесе дауыстап айтып көріңіз.','This page contains examples and study material. Write your own example or practice saying it aloud.')));
         } else if (answerPage) {
-          const link = make('a','Кітаптағы жауаптарды ашу');
+          const link = make('a',t('Кітаптағы жауаптарды ашу','Open Answer Key in Book'));
           link.href = '#read/'+b+'/'+answerPage;
           panel.append(link);
         }
@@ -282,7 +284,7 @@ const izPractice = (() => {
       speaking(panel,key);
     }
 
-    const open = btn('Тапсырманы орындау',() => {
+    const open = btn(t('Тапсырманы орындау','Start Practice'),() => {
       const expanded = panel.hidden;
       panel.hidden = !expanded;
       open.setAttribute('aria-expanded',String(expanded));
