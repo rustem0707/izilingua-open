@@ -1,0 +1,18 @@
+{
+  "name": "Izilingua — Ағылшын тілін қазақша үйрен",
+  "short_name": "Izilingua",
+  "description": "English for Everyone сериясының 18 кітабы негізіндегі қазақша интерактивті оқу студиясы.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f8f8f2",
+  "theme_color": "#193e32",
+  "lang": "kk",
+  "icons": [
+    {
+      "src": "izilingua-mark.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -22,10 +22,34 @@
 
 .iz-practice .lesson-audio h3,
 .iz-practice .lesson-audio audio,
+.iz-practice .lesson-audio .audio-tools,
 .iz-practice .lesson-audio p,
 .iz-practice .lesson-audio small {
   grid-column: 1 / -1;
   margin: 0;
+}
+
+.iz-practice .lesson-audio .audio-tools button {
+  background: #e6ebe0;
+  color: #1f3729;
+  border-color: transparent;
+}
+
+.iz-practice .lesson-audio .audio-tools .audio-repeat.is-active {
+  background: #e0efa9;
+  color: #193224;
+}
+
+.iz-practice-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.iz-practice-actions button.iz-clear-wrong {
+  background: #fff;
+  color: #215948;
 }
 
 .iz-practice .lesson-audio audio {
@@ -66,6 +90,12 @@
 @media (max-width: 900px) {
   .lessonlayout.iz-practice-open,
   .lessonlayout.iz-practice-open > .side {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 520px) {
+  .iz-practice .lesson-audio {
     grid-template-columns: minmax(0, 1fr);
   }
 }

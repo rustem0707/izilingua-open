@@ -11,6 +11,24 @@ const levels = [
 ];
 
 const courseOrder = [6, 3, 4, 1, 2, 0, 5];
+const assetPromises = {};
+function loadScriptOnce(src) {
+  if (assetPromises[src]) return assetPromises[src];
+  assetPromises[src] = new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = src; script.async = false; script.onload = resolve;
+    script.onerror = () => { delete assetPromises[src]; reject(new Error(src)); };
+    document.body.append(script);
+  });
+  return assetPromises[src];
+}
+async function ensureStudyAssets({ audio = false, bookAudio = false, practice = false } = {}) {
+  const tasks = [];
+  if ((audio || bookAudio) && typeof dkAudio === 'undefined') await loadScriptOnce('audio-data.js');
+  if (bookAudio && (typeof dkAudio === 'undefined' || !dkAudio?.[14])) tasks.push(loadScriptOnce('book-audio.js'));
+  if (practice && typeof izPractice === 'undefined') tasks.push(loadScriptOnce('practice.js'));
+  if (tasks.length) await Promise.all(tasks);
+}
 const app = document.querySelector('#app');
 const esc = v => String(v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
@@ -152,10 +170,13 @@ function globalSearch() {
 }
 
 function bookmarkList() {
-  const entries = Object.values(state.bookmarks).filter(readingLink).reverse();
+  const entries = Object.entries(state.bookmarks).filter(([, entry]) => readingLink(entry)).reverse();
   if (!entries.length) return '';
-  return `<section class="section saved-pages"><h2>Бетбелгілер (${entries.length})</h2><ul class="units">${entries.map(entry =>
-    `<li><a class="unit" href="${readingLink(entry)}"><div><b>${esc(readingTitle(entry))}</b><small>${esc(bookGroup(entry.b))} · ${entry.p}-бет</small></div></a></li>`).join('')}</ul></section>`;
+  return `<section class="section saved-pages">
+    <div class="saved-head"><h2>Бетбелгілер (${entries.length})</h2>${entries.length > 1 ? '<button type="button" class="soft btn-del" id="clear-bookmarks">Барлығын өшіру</button>' : ''}</div>
+    <ul class="units">${entries.map(([key, entry]) =>
+      `<li class="saved-item-row"><a class="unit" href="${readingLink(entry)}"><div><b>${esc(readingTitle(entry))}</b><small>${esc(bookGroup(entry.b))} · ${entry.p}-бет</small></div></a><button type="button" class="soft btn-del" data-del-bookmark="${esc(key)}" aria-label="Бетбелгіні өшіру">✕</button></li>`).join('')}</ul>
+  </section>`;
 }
 
 function configuredInstagram(value) {
@@ -170,7 +191,7 @@ function configuredInstagram(value) {
 }
 
 const instagram = configuredInstagram(typeof siteConfig === 'object' ? siteConfig.instagram : '');
-const feedbackWebApp = typeof siteConfig === 'object' ? siteConfig.feedbackWebApp.trim() : '';
+const feedbackWebApp = typeof siteConfig === 'object' ? String(siteConfig.feedbackWebApp ?? '').trim() : '';
 const feedbackEnabled = /^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(feedbackWebApp);
 const instagramIcon = '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.4" cy="6.8" r=".8" fill="currentColor" stroke="none"/></svg>';
 
@@ -188,6 +209,7 @@ function feedbackSection() {
   </section>`;
 }
 
+let courseFilter = 'all';
 function home() {
   const last = readingLink(state.last);
   const totalDone = Object.keys(state.done).length;
@@ -204,7 +226,7 @@ function home() {
     return `<div class="shelf-pair${grammar ? ' grammar-pair' : ''}">${links}<strong>${esc(name)}</strong></div>`;
   }).join('');
 
-  const bookCards = bookSections.map(section => {
+  const bookCards = bookSections.filter(section => courseFilter === 'all' || courseFilter === section.route).map(section => {
     const p0 = bookProgress(section.books[0].id);
     const p1 = bookProgress(section.books[1].id);
     const done = p0.done + p1.done;
@@ -225,7 +247,13 @@ function home() {
     </a>`;
   });
 
-  const cards = courseOrder.map(i => {
+  const filteredCourseOrder = courseOrder.filter(i => {
+    if (courseFilter === 'levels') return i >= 1 && i <= 4;
+    if (courseFilter === 'business') return i === 0 || i === 5;
+    if (courseFilter === 'grammar') return i === 6;
+    return courseFilter === 'all';
+  });
+  const cards = filteredCourseOrder.map(i => {
     const level = levels[i];
     const bookId = 2 * i;
     const prog = bookProgress(bookId);
@@ -267,8 +295,16 @@ function home() {
 
   <section class="section">
     <div id="course-list" class="sectionhead">
-      <h2>Оқу курстары</h2>
-      <span class="mini">${courseOrder.length + bookSections.length} бөлім · ${books.length} кітап${totalDone ? ' · ' + totalDone + ' сабақ өтілді' : ''}</span>
+      <div><h2>Оқу курстары</h2>
+      <span class="mini">${courseOrder.length + bookSections.length} бөлім · ${books.length} кітап${totalDone ? ' · ' + totalDone + ' сабақ өтілді' : ''}</span></div>
+      <div class="tabs" id="course-filters">${[
+        { id: 'all', label: 'Барлығы (9)' },
+        { id: 'levels', label: 'Levels 1–4' },
+        { id: 'business', label: 'Business English' },
+        { id: 'grammar', label: 'Грамматика' },
+        { id: 'vocabulary', label: 'Сөздік қор' },
+        { id: 'phrases', label: 'Фразалық етістіктер мен идиомалар' }
+      ].map(t => `<button type="button" class="${courseFilter === t.id ? 'selected' : ''}" data-filter="${t.id}">${t.label}</button>`).join('')}</div>
     </div>
     <div class="coursegrid">${cards}</div>
   </section>
@@ -294,6 +330,7 @@ function home() {
     </div>
   </section>
   ${feedbackSection()}`;
+  document.querySelectorAll('#course-filters button').forEach(btn => { btn.onclick = () => { courseFilter = btn.dataset.filter; home(); }; });
 }
 
 function showBookSection(section) {
@@ -406,18 +443,51 @@ function savedReading() {
   const doneCount = Object.keys(state.done).length;
   const notes = Object.entries(state.notes).flatMap(([id, text]) => {
     const match = /^(\d+)-(\d+)$/.exec(id);
-    const unit = match && books[Number(match[1])]?.units[Number(match[2])];
-    return unit && typeof text === 'string' && text.trim() ? [{ unit, text }] : [];
+    const b = match ? Number(match[1]) : -1, u = match ? Number(match[2]) : -1;
+    const unit = books[b]?.units[u];
+    return unit && typeof text === 'string' && text.trim() ? [{ id, b, u, unit, text }] : [];
   });
-
   app.innerHTML = `<div class="subhead"><h1>Менің беттерім</h1>
-    <p>Оқу прогресі (${doneCount} сабақ өтілді), соңғы ашылған бет және бетбелгілер осы браузерде сақталады.</p></div>
-    ${last ? `<section class="panel last-reading"><h2>Соңғы ашылған бет</h2>
-      <a class="unit" href="${last}"><div><b>${esc(readingTitle(state.last))}</b><small>${esc(bookGroup(state.last.b))} · ${state.last.p}-бет</small></div></a></section>` : ''}
+    <p>Оқу прогресі (${doneCount} сабақ өтілді), соңғы ашылған бет және бетбелгілер осы браузерде сақталады.</p>
+    <div class="export-bar"><button type="button" id="print-pdf">📄 PDF ретінде сақтау</button></div>
+    <div class="export-bar" style="margin-top:8px">
+      <button type="button" class="soft" id="export-progress">💾 Көшірме сақтау (.json)</button>
+      <label class="btn soft" for="import-progress" style="margin:0">⬆ Қалпына келтіру (.json)<input type="file" id="import-progress" accept=".json,application/json" hidden></label>
+      <small id="backup-status" class="muted" role="status"></small>
+    </div>
+    <small class="muted" style="display:block;margin-top:6px">PDF — оқу және басып шығару үшін. Ал .json — прогрессті басқа құрылғыда қалпына келтіру үшін.</small></div>
+    ${last ? `<section class="panel last-reading"><h2>Соңғы ашылған бет</h2><a class="unit" href="${last}"><div><b>${esc(readingTitle(state.last))}</b><small>${esc(bookGroup(state.last.b))} · ${state.last.p}-бет</small></div></a></section>` : ''}
     ${bookmarks || '<div class="panel"><p class="muted" style="margin:0">Бетбелгі қосу үшін сабақ ішіндегі «Бетбелгі» батырмасын басыңыз.</p></div>'}
-    ${notes.length ? `<section class="section"><h2>Сабақ жазбаларым (${notes.length})</h2><div class="libgrid">
-      ${notes.map(({ unit, text }) => `<div class="panel"><h3>${esc(unit.title)}</h3><p class="saved-note">${esc(text)}</p></div>`).join('')}
+    ${notes.length ? `<section class="section"><div class="saved-head"><h2>Сабақ жазбаларым (${notes.length})</h2><div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="soft btn-del" id="del-selected-notes" hidden>Таңдалғандарды өшіру</button>${notes.length > 1 ? '<button type="button" class="soft btn-del" id="clear-notes">Барлық жазбаны өшіру</button>' : ''}</div></div><div class="libgrid">
+      ${notes.map(({ id, b, u, unit, text }) => `<div class="panel"><div class="saved-note-head"><label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer"><input type="checkbox" class="note-select" value="${esc(id)}" style="margin-top:4px"><div><h3>${esc(unit.title)}</h3><small class="muted">${esc(bookGroup(b))}</small></div></label><button type="button" class="soft btn-del" data-del-note="${esc(id)}">✕ Өшіру</button></div><p class="saved-note">${esc(text)}</p><a class="back" href="${link(b, u)}">Сабаққа өту →</a></div>`).join('')}
     </div></section>` : ''}`;
+  document.querySelectorAll('[data-del-bookmark]').forEach(btn => { btn.onclick = () => { delete state.bookmarks[btn.dataset.delBookmark]; save(); savedReading(); }; });
+  const cb = document.querySelector('#clear-bookmarks'); if (cb) cb.onclick = () => { state.bookmarks = {}; save(); savedReading(); };
+  document.querySelectorAll('[data-del-note]').forEach(btn => { btn.onclick = () => { delete state.notes[btn.dataset.delNote]; save(); savedReading(); }; });
+  const dsn = document.querySelector('#del-selected-notes'), ncs = [...document.querySelectorAll('.note-select')];
+  if (dsn && ncs.length) {
+    ncs.forEach(c => { c.onchange = () => { const n = ncs.filter(x => x.checked).length; dsn.hidden = !n; dsn.textContent = `Таңдалғандарды өшіру (${n})`; }; });
+    dsn.onclick = () => { ncs.forEach(c => { if (c.checked) delete state.notes[c.value]; }); save(); savedReading(); };
+  }
+  const cn = document.querySelector('#clear-notes'); if (cn) cn.onclick = () => { state.notes = {}; save(); savedReading(); };
+  document.querySelector('#print-pdf').onclick = () => window.print();
+  document.querySelector('#export-progress').onclick = () => {
+    const work = {}; try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k?.startsWith('iz-work:')) work[k] = localStorage.getItem(k); } } catch {}
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([JSON.stringify({ version: 1, exportedAt: new Date().toISOString(), study: state, work }, null, 2)], { type: 'application/json' }));
+    a.download = 'izilingua-progress-' + new Date().toISOString().slice(0, 10) + '.json'; a.click();
+    document.querySelector('#backup-status').textContent = 'Көшірме сақталды ✓';
+  };
+  document.querySelector('#import-progress').onchange = async e => {
+    const f = e.target.files?.[0]; if (!f) return;
+    try {
+      const d = JSON.parse(await f.text()); if (!d?.study) throw Error();
+      for (const k of ['done', 'notes', 'bookmarks']) if (d.study[k]) state[k] = d.study[k];
+      if (d.study.last) state.last = d.study.last; if (d.study.lastLesson) state.lastLesson = d.study.lastLesson;
+      save(); if (d.work) for (const [k, v] of Object.entries(d.work)) if (k.startsWith('iz-work:')) localStorage.setItem(k, v);
+      savedReading(); document.querySelector('#backup-status').textContent = 'Прогресс қалпына келтірілді ✓';
+    } catch { document.querySelector('#backup-status').textContent = 'Қате файл пішімі.'; }
+  };
 }
 
 function lessonNavigation(book, unitIndex) {
@@ -490,7 +560,16 @@ async function reader(b, u, p) {
   const answer = book.answer ? '<a class="back" href="#read/' + b + '/' + book.answer + '">' + (b === 12 ? 'Анықтамалықты ашу' : 'Жауап кілтін ашу') + '</a>' : '';
   const topicIndex = single ? u : book.units.findIndex(topic => topic.start <= p && p <= topic.end);
   const audioNumber = b >= 14 ? topicIndex + 1 - (b === 16 ? 3 : 2) : u + 1;
-  const hasAudio = b >= 14 ? !!dkAudio[b]?.[audioNumber] : single && b < 12;
+  const needAudio = (b >= 14 && topicIndex >= 0) || (single && b < 12);
+  const hasAudioData = typeof dkAudio !== 'undefined' && (b < 14 || Boolean(dkAudio[14]));
+  const hasAudio = b >= 14 ? Boolean(typeof dkAudio !== 'undefined' && dkAudio[b]?.[audioNumber]) : single && b < 12;
+  const zenOn = document.body.classList.contains('iz-zen');
+  const hasPublicOriginal = book.original && !String(book.original).includes('chatgpt.com/library');
+  const pairBookId = !standalone && single ? (b ^ 1) : -1;
+  const hasPairUnit = pairBookId >= 0 && Boolean(books[pairBookId]?.units[u]);
+  const pairPanel = hasPairUnit ? (b % 2 === 0
+    ? `<section class="panel"><h3>Жаттығумен бекіту</h3><p class="muted" style="margin:0 0 10px">Осы сабақты ${esc(title(pairBookId))} кітабында жаттығумен бекітіңіз.</p><a class="btn" href="${link(pairBookId, u)}">${esc(title(pairBookId))}-қа өту →</a></section>`
+    : `<section class="panel"><h3>Түсіндірмеге оралу</h3><p class="muted" style="margin:0 0 10px">Осы тақырыптың ережесін ${esc(title(pairBookId))} кітабынан қараңыз.</p><a class="btn" href="${link(pairBookId, u)}">← ${esc(title(pairBookId))}-қа оралу</a></section>`) : '';
   const lessonAudio = hasAudio ? (existingAudio?.dataset.lesson === b + '-' + audioNumber ? existingAudio : createLessonAudio(b, audioNumber)) : null;
 
   if (same && existingAudio !== lessonAudio) {
@@ -514,8 +593,7 @@ async function reader(b, u, p) {
           <div class="pager">${pageButton(-1, p === start)}<span>${p} / ${end} бет</span>${pageButton(1, p === end)}</div>
           <div class="reader-actions">
             ${single ? `<button type="button" id="mark-done" class="${isDone ? 'success' : 'soft'}" aria-pressed="${isDone}">${isDone ? '✓ Өтілді' : 'Сабақты аяқтау'}</button>` : ''}
-            <button type="button" class="soft" id="bookmark" aria-pressed="${hasBookmark}">${hasBookmark ? '✓ Бетбелгі' : 'Бетбелгі'}</button>
-            <button type="button" class="soft" id="zoom" aria-pressed="${zoomed}">${zoomed ? 'Кішірейту' : 'Үлкейту'}</button>
+            <button type="button" class="soft" id="zoom" aria-pressed="${zoomed}">${zoomed ? 'Кішірейту' : 'Үлкейту'}</button><button type="button" class="soft" id="zen-toggle" aria-pressed="${zenOn}">${zenOn ? '✕ Фокус' : '⛶ Фокус'}</button>
           </div>
         </div>
         <div class="page-stage">
@@ -524,13 +602,13 @@ async function reader(b, u, p) {
           ${pageButton(1, p === end, true)}
         </div>
       </section>
-      <aside class="side">
+      <aside class="side">${pairPanel}
         ${single ? '' : `<section class="panel"><h3>Бетке өту</h3><form id="jump"><label for="page">Бет нөмірі</label><div class="row"><input type="number" min="1" max="${end}" required id="page" value="${p}"><button>Ашу</button></div></form>${lessonToResume ? `<a class="back" href="${lessonToResume}">Сабаққа оралу</a>` : ''}</section>`}
         ${single ? `<section class="panel"><h3>Менің жазбам</h3><textarea id="lesson-note" placeholder="Осы сабақ бойынша ереже не жаңа сөздерді жазып алыңыз...">${esc(state.notes[unitKey] ?? '')}</textarea><small id="note-status" class="muted"></small></section>` : ''}
         <section class="panel">
           <h3>Қосымша</h3>
           <a class="back" href="#course/${b}">Кітап мазмұны</a>
-          <a class="back" target="_blank" rel="noopener" href="${book.original}">${b >= 12 ? 'Қазақша PDF ↗' : 'Түпнұсқа PDF ↗'}</a>
+          ${hasPublicOriginal ? `<a class="back" target="_blank" rel="noopener" href="${esc(book.original)}">${b >= 12 ? 'Қазақша PDF ↗' : 'Түпнұсқа PDF ↗'}</a>` : ''}
           ${answer}
         </section>
       </aside>
@@ -547,9 +625,6 @@ async function reader(b, u, p) {
     for (const id of ['prev', 'side-prev', 'next', 'side-next']) {
       document.getElementById(id).disabled = id.endsWith('prev') ? p === start : p === end;
     }
-    const bookmark = document.getElementById('bookmark');
-    bookmark.textContent = hasBookmark ? '✓ Бетбелгі' : 'Бетбелгі';
-    bookmark.setAttribute('aria-pressed', String(hasBookmark));
     if (!single) document.getElementById('page').value = p;
     if (turnDirection && !zoomed && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
       stage.querySelector('.pageimg img').animate([
@@ -564,8 +639,19 @@ async function reader(b, u, p) {
     nextImg.src = pages(b, p + 1);
   }
 
-  if (typeof izPractice === 'object' && izPractice?.mount) {
-    izPractice.mount(app, b, p, b !== 12 ? book.answer : null);
+  if (b !== 12 && typeof izPractice === 'object' && izPractice?.mount) {
+    izPractice.mount(app, b, p, book.answer);
+  }
+  if ((needAudio && !hasAudioData) || (b !== 12 && typeof izPractice === 'undefined')) {
+    ensureStudyAssets({ audio: needAudio, bookAudio: needAudio && b >= 14, practice: b !== 12 }).then(() => {
+      if (request !== readerRequest) return;
+      const sideEl = app.querySelector('.side');
+      if (needAudio && sideEl && !app.querySelector('.lesson-audio')) {
+        const audioReady = b >= 14 ? Boolean(dkAudio?.[b]?.[audioNumber]) : single && b < 12;
+        if (audioReady) sideEl.prepend(createLessonAudio(b, audioNumber));
+      }
+      if (b !== 12 && typeof izPractice === 'object' && izPractice?.mount) izPractice.mount(app, b, p, book.answer);
+    }).catch(() => {});
   }
 
   const $ = s => document.querySelector(s);
@@ -607,21 +693,6 @@ async function reader(b, u, p) {
     };
   }
 
-  $('#bookmark').onclick = event => {
-    const marked = Object.hasOwn(state.bookmarks, markId);
-    if (marked) delete state.bookmarks[markId];
-    else state.bookmarks[markId] = position;
-    const stored = save();
-    if (!stored) {
-      if (marked) state.bookmarks[markId] = position;
-      else delete state.bookmarks[markId];
-      event.currentTarget.textContent = 'Сақталмады';
-      return;
-    }
-    event.currentTarget.setAttribute('aria-pressed', String(!marked));
-    event.currentTarget.textContent = marked ? 'Бетбелгі' : '✓ Бетбелгі';
-  };
-
   function zoom() {
     const on = $('.pageimg').classList.toggle('zoom');
     activeReader.zoomed = on;
@@ -630,6 +701,11 @@ async function reader(b, u, p) {
   }
   $('#zoom').onclick = zoom;
   $('.pageimg img').onclick = zoom;
+  if ($('#zen-toggle')) $('#zen-toggle').onclick = () => {
+    const on = document.body.classList.toggle('iz-zen');
+    $('#zen-toggle').textContent = on ? '✕ Фокус' : '⛶ Фокус';
+    $('#zen-toggle').setAttribute('aria-pressed', String(on));
+  };
   if (!single) $('#jump').onsubmit = e => { e.preventDefault(); location.hash = url(Number($('#page').value)); };
 }
 
@@ -647,7 +723,6 @@ function route() {
   if (section) showBookSection(section);
   else if (view === 'search') globalSearch();
   else if (view === 'library') bookList();
-  else if (view === 'saved' || view === 'progress') savedReading();
   else if (view === 'course' && books[b]) course(b);
   else if (view === 'lesson' && books[b]?.units[u]) reader(b, u, Number(pp));
   else if (view === 'read' && books[b]) reader(b, null, Number(uu));
@@ -656,8 +731,8 @@ function route() {
   if (previousRoute !== family) window.scrollTo({ top: 0, behavior: 'instant' });
   previousRoute = family;
 
-  document.querySelectorAll('nav a').forEach(a => a.classList.toggle('on', a.hash === (view === 'about' ? '#about' : view === 'library' || view === 'read' ? '#library' : view === 'saved' || view === 'progress' ? '#saved' : view === 'search' ? '#search' : '#courses')));
-  if (view === 'about' || view === 'courses') document.getElementById(view === 'about' ? 'about-section' : 'course-list')?.scrollIntoView();
+  document.querySelectorAll('nav a').forEach(a => a.classList.toggle('on', a.hash === (view === 'about' ? '#about' : view === 'library' || view === 'read' ? '#library' : view === 'search' ? '#search' : '#courses')));
+  if (view === 'about') document.getElementById('about-section')?.scrollIntoView();
 
   const heading = app.querySelector('h1')?.textContent;
   document.title = heading && heading !== 'Izilingua' ? heading + ' · Izilingua' : 'Izilingua · Ағылшын тілін қазақша үйрен';
@@ -708,3 +783,12 @@ updateControls();
 updateNavBadge();
 window.addEventListener('hashchange', recordRoute);
 route();
+
+function applyTheme(theme) {
+  if (theme === 'sepia' || theme === 'dark') document.documentElement.dataset.theme = theme;
+  else { delete document.documentElement.dataset.theme; theme = 'day'; }
+  try { localStorage.setItem('iz-theme', theme); } catch {}
+  document.querySelectorAll('.theme-switch button').forEach(btn => btn.setAttribute('aria-pressed', String(btn.dataset.theme === theme)));
+}
+try { applyTheme(localStorage.getItem('iz-theme') || 'day'); } catch { applyTheme('day'); }
+document.querySelectorAll('.theme-switch button').forEach(btn => { btn.onclick = () => applyTheme(btn.dataset.theme); });

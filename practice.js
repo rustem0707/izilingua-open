@@ -162,7 +162,18 @@ const izPractice = (() => {
       if(ex.reference){for(const [i,r] of rows.entries())keyBox.append(make('p',(i+1)+'. '+r.a.join(' / ')));return;}
       if(ex.clips){for(const [page,...rect] of ex.clips)markedImage(keyBox,b,page,rect,false);return;}
       const img=make('img');img.src=rootPath+'keys/'+b+'/'+id+'.webp';img.alt=id+' жаттығуының жауаптары, '+ex.key+'-бет';keyBox.append(img);};
-    pane.append(btn('Тексеру',()=>{
+    const actions=make('div',null,'iz-practice-actions');
+    const clearWrong=btn('Қатені тазалау',()=>{
+      for(const {row,input,msg} of controls){
+        if(row.dataset.status==='different'){
+          input.value='';save(b+'/'+id+'/'+controls.findIndex(c=>c.input===input),'');
+          row.removeAttribute('data-status');msg.textContent='';
+        }
+      }
+      score.textContent='';
+    });
+    clearWrong.className='iz-clear-wrong';
+    actions.append(btn('Тексеру',()=>{
       let good=0,empty=0,review=0;const used=new Set();
       for(const {row,input,r,msg} of controls){
         const value=norm(input.value);let s=!value?'empty':!r.a.length?'review':r.a.some(a=>norm(a)===value)?'good':'different';
@@ -175,7 +186,8 @@ const izPractice = (() => {
         if(s==='good')good++;if(s==='empty')empty++;if(s==='review')review++;
       }
       score.textContent='Дұрыс: '+good+' / '+rows.length+' · Сәйкес келмеді: '+(rows.length-good-empty-review)+' · Бос: '+empty+(review?' · Өзіңіз салыстырасыз: '+review:'');
-    }),score,keyBox);host.append(pane);
+    }),clearWrong);
+    pane.append(actions,score,keyBox);host.append(pane);
   }
   const mounted = new WeakMap();
 
@@ -188,7 +200,7 @@ const izPractice = (() => {
     mounted.delete(host);
 
     const book = izBooks[b];
-    if (book && (p < (book.min ?? 12) || p >= book.key)) return;
+    if (b === 12 || (book && (p < (book.min ?? 12) || p >= book.key))) return;
 
     const layout = host.querySelector('.lessonlayout');
     const side = layout?.querySelector(':scope > .side');

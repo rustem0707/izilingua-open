@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#193e32">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="description" content="English for Everyone — Free interactive study studio with 18 books, native audio, and practice exercises.">
+  <title>English for Everyone — Interactive Study Studio</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="../izilingua-mark.svg">
+  <link rel="apple-touch-icon" href="../izilingua-mark.svg">
+  <link rel="stylesheet" href="../style.css?v=20261126">
+  <link rel="stylesheet" href="../practice.css?v=20261126">
+</head>
+<body>
+  <header class="site-header">
+    <div class="bar">
+      <a class="brand" href="#" aria-label="EFE Studio · Home">
+        <img src="../izilingua-mark.svg" alt="" width="38" height="38">
+        <span class="brand-text">
+          <strong>EFE STUDIO</strong>
+          <small>English for Everyone</small>
+        </span>
+      </a>
+      <nav aria-label="Main navigation">
+        <a href="#courses" data-nav="courses">Courses</a>
+        <a href="#library" data-nav="library">Library</a>
+        <a href="#search" data-nav="search">Search</a>
+        <a href="#about" data-nav="about">About</a>
+      </nav>
+      <div class="lang-switch" role="group" aria-label="Language"><a href="../">ҚАЗ</a><a class="on" href="./" aria-current="page">ENG</a></div>
+      <div class="theme-switch" role="group" aria-label="Reading theme">
+        <button type="button" data-theme="day" title="Day mode" aria-label="Day mode">☀</button>
+        <button type="button" data-theme="sepia" title="Sepia mode" aria-label="Sepia mode">📜</button>
+        <button type="button" data-theme="dark" title="Dark mode" aria-label="Dark mode">🌙</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="sub-bar" id="sub-bar" hidden>
+    <div class="sub-bar-inner">
+      <div class="nav-history">
+        <button id="site-back" type="button" class="icon-btn" aria-label="Back">← Back</button>
+        <button id="site-forward" type="button" class="icon-btn" aria-label="Forward">Forward →</button>
+      </div>
+      <select aria-label="Jump to section" id="section-picker">
+        <option value="">Jump to section…</option>
+      </select>
+    </div>
+  </div>
+
+  <main id="app">
+    <div class="app-skeleton" aria-busy="true" aria-label="Loading">
+      <div class="sk-hero"></div>
+      <div class="sk-grid"><div class="sk-card"></div><div class="sk-card"></div><div class="sk-card"></div></div>
+      <p class="sk-text">Loading books and lessons…</p>
+    </div>
+    <noscript><p class="panel">Please enable JavaScript to use EFE Studio.</p></noscript>
+  </main>
+
+  <nav class="mobile-bottom-nav" aria-label="Mobile menu">
+    <a href="#courses" data-nav="courses"><span>🏠</span><span>Courses</span></a>
+    <a href="#library" data-nav="library"><span>📚</span><span>Library</span></a>
+    <a href="#search" data-nav="search"><span>🔍</span><span>Search</span></a>
+    <a href="#about" data-nav="about"><span>ℹ️</span><span>About</span></a>
+  </nav>
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <b>EFE Studio</b>
+        <span>English for Everyone · Interactive Study Platform</span>
+      </div>
+      <div class="footer-links">
+        <a href="#courses">Courses</a>
+        <a href="#library">18 Books</a>
+        <a href="mobile/">Mobile Version</a>
+        <a href="terms.html">Terms of Use</a>
+        <span id="footer-author"></span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="books.js"></script>
+  <script src="grammar.js"></script>
+  <script src="vocabulary.js"></script>
+  <script src="lesson-audio.js?v=1"></script>
+  <script src="../site-config.js"></script>
+  <script src="app.js?v=1"></script>
+</body>
+</html>

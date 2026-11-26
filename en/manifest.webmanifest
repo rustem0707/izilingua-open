@@ -1,0 +1,18 @@
+{
+  "name": "English for Everyone — Interactive Study Studio",
+  "short_name": "EFE Studio",
+  "description": "Interactive English for Everyone study studio with 18 books, native audio, and exercises.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f8f8f2",
+  "theme_color": "#193e32",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "izilingua-mark.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
