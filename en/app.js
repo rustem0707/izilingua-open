@@ -95,7 +95,7 @@ const bookSections = [
 const bookSection = id => bookSections.find(section => section.books.some(book => book.id === id));
 const bookGroup = id => bookSection(id)?.title ?? levels[id >> 1].name;
 const title = b => books[b]?.name ?? (b === 12 ? 'Grammar Guide' : b % 2 ? 'Practice Book' : 'Course Book');
-const pages = (b, p) => (b >= 12 ? 'pages/' : '../pages/') + b + '/' + p + '.webp';
+const pages = (b, p) => 'pages/' + b + '/' + p + '.webp';
 const link = (b, u, p) => '#lesson/' + b + '/' + u + (p ? '/' + p : '');
 const orderedBooks = () => [...courseOrder.flatMap(i => [books[i * 2], books[i * 2 + 1]]), ...vocabularyBooks];
 

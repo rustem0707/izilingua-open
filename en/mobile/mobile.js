@@ -29,7 +29,7 @@ try {
 const save = () => { try { localStorage.setItem(storageKey, JSON.stringify(state)); } catch {} };
 
 const title = b => books[b]?.name ?? (b === 12 ? 'Grammar Guide' : b % 2 ? 'Practice Book' : 'Course Book');
-const pageSrc = (b, p) => `${b >= 12 ? '../pages' : '../../pages'}/${b}/${p}.webp`;
+const pageSrc = (b, p) => `../pages/${b}/${p}.webp`;
 const orderedBooks = () => [...courseOrder.flatMap(i => [books[i * 2], books[i * 2 + 1]]), ...vocabularyBooks];
 
 function bookProg(id) {
