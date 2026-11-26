@@ -210,20 +210,36 @@ function feedbackSection() {
 }
 
 let courseFilter = 'all';
+let activeShelfIdx = 2;
 function home() {
   const last = readingLink(state.last);
   const totalDone = Object.keys(state.done).length;
-  const shelfGroups = [
-    ...courseOrder.map(i => ({ name: i === 6 ? 'Grammar Guide' : levels[i].name, ids: [2 * i, 2 * i + 1] })),
-    ...bookSections.map(section => ({ name: section.title, ids: section.books.map(book => book.id) }))
-  ];
-  const collection = shelfGroups.map(({ name, ids }) => {
-    const grammar = ids[0] === 12;
-    const links = ids.map(id => {
-      const label = grammar ? (id === 12 ? 'Grammar Guide' : 'Grammar Guide Practice Book') : bookGroup(id) + ' · ' + title(id);
-      return `<a href="#course/${id}" aria-label="${esc(label)}" title="${esc(label)}">${coverImage(id, true)}${grammar ? `<span class="single-title">${label}</span>` : ''}</a>`;
-    }).join('');
-    return `<div class="shelf-pair${grammar ? ' grammar-pair' : ''}">${links}<strong>${esc(name)}</strong></div>`;
+  const shelfBooks = orderedBooks();
+  const spineMeta = {
+    0: ['#0b4d8c', true, 'B1'], 1: ['#0b4d8c', false, 'B1'],
+    2: ['#7ab800', true, 'L3'], 3: ['#7ab800', false, 'L3'],
+    4: ['#0091c9', true, 'L4'], 5: ['#0091c9', false, 'L4'],
+    6: ['#b91c1c', true, 'L1'], 7: ['#ea2b24', false, 'L1'],
+    8: ['#e67817', true, 'L2'], 9: ['#f27d16', false, 'L2'],
+    10: ['#572971', true, 'B2'], 11: ['#572971', false, 'B2'],
+    12: ['#4f5254', true, 'GG'], 13: ['#4f5254', false, 'GG'],
+    14: ['#dc6428', true, '10K'], 15: ['#8c286e', true, '3K'],
+    16: ['#0d8c82', true, 'IDM'], 17: ['#c88a12', true, 'PHR']
+  };
+  const shelfHtml = shelfBooks.map((b, idx) => {
+    const lbl = bookGroup(b.id) + ' · ' + title(b.id);
+    const [col, isCourse, tag] = spineMeta[b.id] || ['#245242', true, 'EFE'];
+    return `<div class="book3d" data-idx="${idx}" data-id="${b.id}" style="--spine:${col}" role="button" tabindex="0" aria-label="${esc(lbl)}">
+      <div class="book3d-top"></div>
+      <div class="book3d-spine ${isCourse ? 'is-course' : 'is-practice'}">
+        <div class="spine-cap">${tag}</div>
+        <div class="spine-mid"><span>ENGLISH FOR EVERYONE</span></div>
+        <div class="spine-dk">DK</div>
+      </div>
+      <div class="book3d-cover"><img src="${pages(b.id, 1)}" alt="${esc(lbl)}" decoding="async"></div>
+      <div class="book3d-back"></div>
+      <div class="book3d-pages"></div>
+    </div>`;
   }).join('');
 
   const bookCards = bookSections.filter(section => courseFilter === 'all' || courseFilter === section.route).map(section => {
@@ -276,7 +292,7 @@ function home() {
     </a>`;
   }).concat(bookCards).join('');
 
-  app.innerHTML = `<section class="hero cover-hero">
+  app.innerHTML = `<section class="hero cover-hero shelf-hero">
     <div class="heroCopy">
       <span class="hero-badge">ENGLISH FOR EVERYONE · 18 КІТАП</span>
       <h1>Ағылшын тілін <em>қазақша</em> түсіндіретін оқу студиясы</h1>
@@ -290,7 +306,18 @@ function home() {
         <span>→</span>
       </a>` : ''}
     </div>
-    <div id="home-books" class="cover-collection" role="group" aria-label="English for Everyone жинағының 18 мұқабасы">${collection}</div>
+    <div id="home-books" class="shelf-stage" role="region" aria-label="18 кітаптың 3D сөресі">
+      <div class="shelf-meta">
+        <div class="shelf-caption"><small id="shelf-group"></small><strong id="shelf-title"></strong></div>
+        <div class="shelf-controls">
+          <button type="button" class="shelf-nav" id="shelf-prev" aria-label="Алдыңғы кітап">‹</button>
+          <a class="btn light" id="shelf-open" href="#course/6" style="padding:7px 14px;font-size:13px">Ашу →</a>
+          <button type="button" class="shelf-nav" id="shelf-next" aria-label="Келесі кітап">›</button>
+        </div>
+      </div>
+      <div class="shelf-viewport"><div class="shelf-track" id="shelf-track">${shelfHtml}</div></div>
+      <div class="shelf-ledge"></div>
+    </div>
   </section>
 
   <section class="section">
@@ -331,6 +358,83 @@ function home() {
   </section>
   ${feedbackSection()}`;
   document.querySelectorAll('#course-filters button').forEach(btn => { btn.onclick = () => { courseFilter = btn.dataset.filter; home(); }; });
+
+  const shelfStage = document.querySelector('#home-books');
+  const bookEls = [...document.querySelectorAll('#shelf-track .book3d')];
+  const shelfGroupEl = document.querySelector('#shelf-group');
+  const shelfTitleEl = document.querySelector('#shelf-title');
+  const shelfOpenEl = document.querySelector('#shelf-open');
+  if (window._izShelfTimer) { clearInterval(window._izShelfTimer); window._izShelfTimer = null; }
+  function updateShelf(idx) {
+    activeShelfIdx = (idx + shelfBooks.length) % shelfBooks.length;
+    const isMob = window.innerWidth <= 520;
+    const gap = isMob ? 56 : 78;
+    const centerPush = isMob ? 68 : 96;
+    bookEls.forEach((el, i) => {
+      let d = i - activeShelfIdx;
+      if (d > shelfBooks.length / 2) d -= shelfBooks.length;
+      if (d < -shelfBooks.length / 2) d += shelfBooks.length;
+      const abs = Math.abs(d);
+      const visible = abs <= (isMob ? 3 : 5);
+      el.classList.toggle('is-active', d === 0);
+      el.style.visibility = visible ? 'visible' : 'hidden';
+      el.style.opacity = visible ? '1' : '0';
+      el.style.pointerEvents = visible ? 'auto' : 'none';
+      el.style.zIndex = String(30 - abs);
+      if (d === 0) {
+        el.style.transform = 'translate3d(0px, -10px, 76px) rotateX(-4deg) rotateY(0deg) scale(1.06)';
+      } else {
+        const sign = Math.sign(d);
+        const x = d * gap + sign * centerPush;
+        const z = -Math.min(abs, 5) * 28;
+        const rot = sign * -56;
+        el.style.transform = `translate3d(${x}px, 0px, ${z}px) rotateX(-4deg) rotateY(${rot}deg) scale(0.92)`;
+      }
+    });
+    const cur = shelfBooks[activeShelfIdx];
+    shelfGroupEl.textContent = bookGroup(cur.id) + ' · ' + cur.total + ' бет';
+    shelfTitleEl.textContent = title(cur.id);
+    shelfOpenEl.href = '#course/' + cur.id;
+  }
+  bookEls.forEach(el => {
+    el.onclick = () => {
+      const i = Number(el.dataset.idx);
+      if (i === activeShelfIdx) location.hash = '#course/' + el.dataset.id;
+      else updateShelf(i);
+    };
+    el.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.click(); } };
+  });
+  document.querySelector('#shelf-prev').onclick = () => updateShelf(activeShelfIdx - 1);
+  document.querySelector('#shelf-next').onclick = () => updateShelf(activeShelfIdx + 1);
+  let shelfPaused = false;
+  let touchStartX = 0;
+  if (shelfStage) {
+    shelfStage.addEventListener('mouseenter', () => { shelfPaused = true; });
+    shelfStage.addEventListener('mouseleave', () => { shelfPaused = false; });
+    shelfStage.addEventListener('focusin', () => { shelfPaused = true; });
+    shelfStage.addEventListener('focusout', () => { shelfPaused = false; });
+    shelfStage.addEventListener('touchstart', e => {
+      shelfPaused = true;
+      touchStartX = e.changedTouches?.[0]?.clientX || 0;
+    }, { passive: true });
+    shelfStage.addEventListener('touchend', e => {
+      const dx = (e.changedTouches?.[0]?.clientX || 0) - touchStartX;
+      if (Math.abs(dx) > 36) updateShelf(activeShelfIdx + (dx < 0 ? 1 : -1));
+      setTimeout(() => { shelfPaused = false; }, 3500);
+    }, { passive: true });
+  }
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    setTimeout(() => {
+      if (shelfStage && document.body.contains(shelfStage) && !document.hidden && !shelfPaused) {
+        updateShelf(activeShelfIdx + 1);
+      }
+    }, 900);
+    window._izShelfTimer = setInterval(() => {
+      if (!shelfStage || !document.body.contains(shelfStage)) { clearInterval(window._izShelfTimer); window._izShelfTimer = null; return; }
+      if (!document.hidden && !shelfPaused) updateShelf(activeShelfIdx + 1);
+    }, 2600);
+  }
+  updateShelf(activeShelfIdx);
 }
 
 function showBookSection(section) {
