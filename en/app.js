@@ -37,7 +37,7 @@ async function ensureStudyAssets({ audio = false, bookAudio = false, practice = 
     tasks.push(loadScriptOnce('../book-audio.js'));
   }
   if (practice && typeof izPractice === 'undefined') {
-    tasks.push(loadScriptOnce('../practice.js?v=20261126b'));
+    tasks.push(loadScriptOnce('../practice.js?v=20261127d'));
   }
   if (tasks.length) await Promise.all(tasks);
 }
@@ -88,7 +88,19 @@ const bookSections = [
     route: 'phrases',
     title: 'Phrasal Verbs & Idioms',
     description: 'Master common phrasal verbs and English idioms in real context.',
-    books: vocabularyBooks.slice(2)
+    books: vocabularyBooks.slice(2, 4)
+  },
+  {
+    route: 'everyday',
+    title: 'Everyday English',
+    description: 'Master everyday English phrases and real-life conversations.',
+    books: vocabularyBooks.slice(4, 5)
+  },
+  {
+    route: 'teachers',
+    title: "Teacher's Guide",
+    description: 'Classroom activities, exercise guides, and teaching notes.',
+    books: vocabularyBooks.slice(5, 6)
   }
 ];
 
@@ -210,7 +222,8 @@ function home() {
     10: ['#572971', true, 'B2'], 11: ['#572971', false, 'B2'],
     12: ['#4f5254', true, 'GG'], 13: ['#4f5254', false, 'GG'],
     14: ['#dc6428', true, '10K'], 15: ['#8c286e', true, '3K'],
-    16: ['#0d8c82', true, 'IDM'], 17: ['#c88a12', true, 'PHR']
+    16: ['#0d8c82', true, 'IDM'], 17: ['#c88a12', true, 'PHR'],
+    18: ['#009846', true, 'EVD'], 19: ['#1b6b63', true, 'TCH']
   };
   const shelfHtml = shelfBooks.map((b, idx) => {
     const lbl = bookGroup(b.id) + ' · ' + title(b.id);
@@ -230,25 +243,43 @@ function home() {
 
   const bookCards = bookSections
     .filter(section => courseFilter === 'all' || courseFilter === section.route)
-    .map(section => {
-    const p0 = bookProgress(section.books[0].id);
-    const p1 = bookProgress(section.books[1].id);
-    const done = p0.done + p1.done;
-    const total = p0.total + p1.total;
-    const pct = total ? Math.round((done / total) * 100) : 0;
-    return `<a href="#${section.route}" class="card vocabulary-card">
-      <div class="cover-art">
-        <div class="cover-art-top"><span>Books</span><span>${pct}%</span></div>
-        <div class="vocabulary-covers" aria-hidden="true">${section.books.map(book => coverImage(book.id, true)).join('')}</div>
-      </div>
-      <div class="cardbody"><h3>${section.title}</h3>
-        <p>${section.description}</p>
-        <div class="card-progress">
-          <div class="progressbar"><i style="width:${pct}%"></i></div>
-          <div class="cardfoot"><b>All Levels</b><span>${done}/${total} topics</span></div>
+    .flatMap(section => {
+    if (section.route === 'vocabulary') {
+      const p0 = bookProgress(section.books[0].id);
+      const p1 = bookProgress(section.books[1].id);
+      const done = p0.done + p1.done;
+      const total = p0.total + p1.total;
+      const pct = total ? Math.round((done / total) * 100) : 0;
+      return [`<a href="#${section.route}" class="card vocabulary-card">
+        <div class="cover-art">
+          <div class="cover-art-top"><span>Books</span><span>${pct}%</span></div>
+          <div class="vocabulary-covers" aria-hidden="true">${section.books.map(book => coverImage(book.id, true)).join('')}</div>
         </div>
-      </div>
-    </a>`;
+        <div class="cardbody"><h3>${section.title}</h3>
+          <p>${section.description}</p>
+          <div class="card-progress">
+            <div class="progressbar"><i style="width:${pct}%"></i></div>
+            <div class="cardfoot"><b>All Levels</b><span>${done}/${total} topics</span></div>
+          </div>
+        </div>
+      </a>`];
+    }
+    return section.books.map(book => {
+      const prog = bookProgress(book.id);
+      return `<a href="#course/${book.id}" class="card vocabulary-card">
+        <div class="cover-art">
+          <div class="cover-art-top"><span>Book</span><span>${prog.pct}%</span></div>
+          <div class="vocabulary-covers single-cover" aria-hidden="true">${coverImage(book.id, true)}</div>
+        </div>
+        <div class="cardbody"><h3>${esc(book.name)}</h3>
+          <p>${esc(book.description)}</p>
+          <div class="card-progress">
+            <div class="progressbar"><i style="width:${prog.pct}%"></i></div>
+            <div class="cardfoot"><b>${esc(book.subtitle)}</b><span>${prog.done}/${prog.total} topics</span></div>
+          </div>
+        </div>
+      </a>`;
+    });
   });
 
   const filteredCourseOrder = courseOrder.filter(i => {
@@ -282,25 +313,27 @@ function home() {
   }).concat(bookCards).join('');
 
   const courseTabs = [
-    { id: 'all', label: 'All (9)' },
+    { id: 'all', label: `All (${courseOrder.length + vocabularyBooks.length - 1})` },
     { id: 'levels', label: 'Levels 1–4' },
     { id: 'business', label: 'Business English' },
     { id: 'grammar', label: 'Grammar Guide' },
     { id: 'vocabulary', label: 'Vocabulary' },
-    { id: 'phrases', label: 'Phrasal Verbs & Idioms' }
+    { id: 'phrases', label: 'Phrasal Verbs & Idioms' },
+    { id: 'everyday', label: 'Everyday English' },
+    { id: 'teachers', label: "Teacher's Guide" }
   ];
 
   app.innerHTML = `<section class="hero cover-hero shelf-hero">
     <div class="heroCopy">
       <div class="hero-main">
-        <span class="hero-badge">ENGLISH FOR EVERYONE · 18 BOOKS</span>
+        <span class="hero-badge">ENGLISH FOR EVERYONE · ${books.length} BOOKS</span>
         <h1>Interactive <em>English</em> self-study studio</h1>
         <p>Choose your level, study visual lessons, listen to native UK & US audio, and practice with interactive exercises.</p>
       </div>
       <div class="hero-side">
         <div class="hero-actions">
           <a class="btn light" href="#courses">Explore Courses</a>
-          <a class="btn outline-light" href="#library">18 Books Shelf</a>
+          <a class="btn outline-light" href="#library">${books.length} Books Shelf</a>
         </div>
         ${last ? `<a class="resume-card" href="${last}">
           <div><small>Continue Reading</small><b>${esc(readingTitle(state.last))} (Page ${state.last.p})</b></div>
@@ -326,7 +359,7 @@ function home() {
     <div id="course-list" class="sectionhead">
       <div>
         <h2>Study Courses</h2>
-        <span class="mini">${courseOrder.length + bookSections.length} sections · ${books.length} books${totalDone ? ' · ' + totalDone + ' completed' : ''}${totalPracticeWork ? ' · ' + totalPracticeWork + ' answers saved' : ''}</span>
+        <span class="mini">${courseOrder.length + vocabularyBooks.length - 1} sections · ${books.length} books${totalDone ? ' · ' + totalDone + ' completed' : ''}${totalPracticeWork ? ' · ' + totalPracticeWork + ' answers saved' : ''}</span>
       </div>
       <div class="tabs" id="course-filters">${courseTabs.map(t =>
         `<button type="button" class="${courseFilter === t.id ? 'selected' : ''}" data-filter="${t.id}">${t.label}</button>`).join('')}

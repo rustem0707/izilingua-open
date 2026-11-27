@@ -26,7 +26,7 @@ async function ensureStudyAssets({ audio = false, bookAudio = false, practice = 
   const tasks = [];
   if ((audio || bookAudio) && typeof dkAudio === 'undefined') await loadScriptOnce('audio-data.js');
   if (bookAudio && (typeof dkAudio === 'undefined' || !dkAudio?.[14])) tasks.push(loadScriptOnce('book-audio.js'));
-  if (practice && typeof izPractice === 'undefined') tasks.push(loadScriptOnce('practice.js?v=20261126b'));
+  if (practice && typeof izPractice === 'undefined') tasks.push(loadScriptOnce('practice.js?v=20261127d'));
   if (tasks.length) await Promise.all(tasks);
 }
 const app = document.querySelector('#app');
@@ -78,7 +78,19 @@ const bookSections = [
     route: 'phrases',
     title: 'Фразалық етістіктер мен идиомалар',
     description: 'Фразалық етістіктер мен идиомалардың мағынасын мысалдар арқылы меңгеріңіз.',
-    books: vocabularyBooks.slice(2)
+    books: vocabularyBooks.slice(2, 4)
+  },
+  {
+    route: 'everyday',
+    title: 'Күнделікті ағылшын тілі',
+    description: 'Күнделікті өмірде, саяхатта және жұмыста жиі қолданылатын дайын тіркестер.',
+    books: vocabularyBooks.slice(4, 5)
+  },
+  {
+    route: 'teachers',
+    title: 'Мұғалімдерге арналған нұсқаулық',
+    description: 'Сабақ беру әдістемесі мен жаттығу түрлеріне арналған толық нұсқаулық.',
+    books: vocabularyBooks.slice(5, 6)
   }
 ];
 
@@ -238,7 +250,8 @@ function home() {
     10: ['#572971', true, 'B2'], 11: ['#572971', false, 'B2'],
     12: ['#4f5254', true, 'GG'], 13: ['#4f5254', false, 'GG'],
     14: ['#dc6428', true, '10K'], 15: ['#8c286e', true, '3K'],
-    16: ['#0d8c82', true, 'IDM'], 17: ['#c88a12', true, 'PHR']
+    16: ['#0d8c82', true, 'IDM'], 17: ['#c88a12', true, 'PHR'],
+    18: ['#009846', true, 'EVD'], 19: ['#1b6b63', true, 'TCH']
   };
   const shelfHtml = shelfBooks.map((b, idx) => {
     const lbl = bookGroup(b.id) + ' · ' + title(b.id);
@@ -256,25 +269,43 @@ function home() {
     </div>`;
   }).join('');
 
-  const bookCards = bookSections.filter(section => courseFilter === 'all' || courseFilter === section.route).map(section => {
-    const p0 = bookProgress(section.books[0].id);
-    const p1 = bookProgress(section.books[1].id);
-    const done = p0.done + p1.done;
-    const total = p0.total + p1.total;
-    const pct = total ? Math.round((done / total) * 100) : 0;
-    return `<a href="#${section.route}" class="card vocabulary-card">
-      <div class="cover-art">
-        <div class="cover-art-top"><span>Кітаптар</span><span>${pct}%</span></div>
-        <div class="vocabulary-covers" aria-hidden="true">${section.books.map(book => coverImage(book.id, true)).join('')}</div>
-      </div>
-      <div class="cardbody"><h3>${section.title}</h3>
-        <p>${section.description}</p>
-        <div class="card-progress">
-          <div class="progressbar"><i style="width:${pct}%"></i></div>
-          <div class="cardfoot"><b>Барлық деңгейге</b><span>${done}/${total} тақырып</span></div>
+  const bookCards = bookSections.filter(section => courseFilter === 'all' || courseFilter === section.route).flatMap(section => {
+    if (section.route === 'vocabulary') {
+      const p0 = bookProgress(section.books[0].id);
+      const p1 = bookProgress(section.books[1].id);
+      const done = p0.done + p1.done;
+      const total = p0.total + p1.total;
+      const pct = total ? Math.round((done / total) * 100) : 0;
+      return [`<a href="#${section.route}" class="card vocabulary-card">
+        <div class="cover-art">
+          <div class="cover-art-top"><span>Кітаптар</span><span>${pct}%</span></div>
+          <div class="vocabulary-covers" aria-hidden="true">${section.books.map(book => coverImage(book.id, true)).join('')}</div>
         </div>
-      </div>
-    </a>`;
+        <div class="cardbody"><h3>${section.title}</h3>
+          <p>${section.description}</p>
+          <div class="card-progress">
+            <div class="progressbar"><i style="width:${pct}%"></i></div>
+            <div class="cardfoot"><b>Барлық деңгейге</b><span>${done}/${total} тақырып</span></div>
+          </div>
+        </div>
+      </a>`];
+    }
+    return section.books.map(book => {
+      const prog = bookProgress(book.id);
+      return `<a href="#course/${book.id}" class="card vocabulary-card">
+        <div class="cover-art">
+          <div class="cover-art-top"><span>Кітап</span><span>${prog.pct}%</span></div>
+          <div class="vocabulary-covers single-cover" aria-hidden="true">${coverImage(book.id, true)}</div>
+        </div>
+        <div class="cardbody"><h3>${esc(book.name)}</h3>
+          <p>${esc(book.description)}</p>
+          <div class="card-progress">
+            <div class="progressbar"><i style="width:${prog.pct}%"></i></div>
+            <div class="cardfoot"><b>${esc(book.subtitle)}</b><span>${prog.done}/${prog.total} тақырып</span></div>
+          </div>
+        </div>
+      </a>`;
+    });
   });
 
   const filteredCourseOrder = courseOrder.filter(i => {
@@ -309,14 +340,14 @@ function home() {
   app.innerHTML = `<section class="hero cover-hero shelf-hero">
     <div class="heroCopy">
       <div class="hero-main">
-        <span class="hero-badge">ENGLISH FOR EVERYONE · 18 КІТАП</span>
+        <span class="hero-badge">ENGLISH FOR EVERYONE · ${books.length} КІТАП</span>
         <h1>Ағылшын тілін <em>қазақша</em> түсіндіретін оқу студиясы</h1>
         <p>Деңгейіңізге сай кітап таңдап, қазақша түсіндірмелерді оқыңыз, түпнұсқа аудио тыңдаңыз және интерактивті жаттығулармен бекітіңіз.</p>
       </div>
       <div class="hero-side">
         <div class="hero-actions">
           <a class="btn light" href="#courses">Курстарды бастау</a>
-          <a class="btn outline-light" href="#library">18 кітап сөресі</a>
+          <a class="btn outline-light" href="#library">${books.length} кітап сөресі</a>
         </div>
         ${last ? `<a class="resume-card" href="${last}">
           <div><small>Соңғы оқылған бет · Жалғастыру</small><b>${esc(readingTitle(state.last))} (${state.last.p}-бет)</b></div>
@@ -341,14 +372,16 @@ function home() {
   <section class="section">
     <div id="course-list" class="sectionhead">
       <div><h2>Оқу курстары</h2>
-      <span class="mini">${courseOrder.length + bookSections.length} бөлім · ${books.length} кітап${totalDone ? ' · ' + totalDone + ' сабақ өтілді' : ''}</span></div>
+      <span class="mini">${courseOrder.length + vocabularyBooks.length - 1} бөлім · ${books.length} кітап${totalDone ? ' · ' + totalDone + ' сабақ өтілді' : ''}</span></div>
       <div class="tabs" id="course-filters">${[
-        { id: 'all', label: 'Барлығы (9)' },
+        { id: 'all', label: `Барлығы (${courseOrder.length + vocabularyBooks.length - 1})` },
         { id: 'levels', label: 'Levels 1–4' },
         { id: 'business', label: 'Business English' },
         { id: 'grammar', label: 'Грамматика' },
         { id: 'vocabulary', label: 'Сөздік қор' },
-        { id: 'phrases', label: 'Фразалық етістіктер мен идиомалар' }
+        { id: 'phrases', label: 'Фразалық етістіктер мен идиомалар' },
+        { id: 'everyday', label: 'Everyday English' },
+        { id: 'teachers', label: 'Мұғалімдерге' }
       ].map(t => `<button type="button" class="${courseFilter === t.id ? 'selected' : ''}" data-filter="${t.id}">${t.label}</button>`).join('')}</div>
     </div>
     <div class="coursegrid">${cards}</div>

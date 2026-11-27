@@ -2402,6 +2402,991 @@ const vocabularyBooks = [
     "intro": ""
    }
   ]
- }
+ },
+{
+  "id": 18,
+  "name": "Everyday English",
+  "subtitle": "Practical phrases & conversations",
+  "description": "Master everyday English phrases and real-life conversations for travel, work, shopping, and socializing.",
+  "total": 258,
+  "answer": 242,
+  "units": [
+    {
+      "title": "Contents",
+      "start": 7,
+      "end": 9,
+      "intro": ""
+    },
+    {
+      "title": "How to use this book",
+      "start": 10,
+      "end": 11,
+      "intro": ""
+    },
+    {
+      "title": "01 Greetings",
+      "start": 12,
+      "end": 13,
+      "intro": ""
+    },
+    {
+      "title": "02 Introductions",
+      "start": 14,
+      "end": 15,
+      "intro": ""
+    },
+    {
+      "title": "03 Conversation fillers",
+      "start": 16,
+      "end": 17,
+      "intro": ""
+    },
+    {
+      "title": "04 Saying you don't understand",
+      "start": 18,
+      "end": 19,
+      "intro": ""
+    },
+    {
+      "title": "05 Opinions and preferences",
+      "start": 20,
+      "end": 23,
+      "intro": ""
+    },
+    {
+      "title": "06 Agreeing and disagreeing",
+      "start": 24,
+      "end": 25,
+      "intro": ""
+    },
+    {
+      "title": "07 Making suggestions",
+      "start": 26,
+      "end": 27,
+      "intro": ""
+    },
+    {
+      "title": "08 Thanking people",
+      "start": 28,
+      "end": 29,
+      "intro": ""
+    },
+    {
+      "title": "09 Apologizing",
+      "start": 30,
+      "end": 31,
+      "intro": ""
+    },
+    {
+      "title": "10 Saying goodbye",
+      "start": 32,
+      "end": 33,
+      "intro": ""
+    },
+    {
+      "title": "11 Days, times, and the weather",
+      "start": 34,
+      "end": 35,
+      "intro": ""
+    },
+    {
+      "title": "12 Making arrangements",
+      "start": 36,
+      "end": 37,
+      "intro": ""
+    },
+    {
+      "title": "13 Talking about the weather",
+      "start": 38,
+      "end": 39,
+      "intro": ""
+    },
+    {
+      "title": "14 Family and relationships",
+      "start": 40,
+      "end": 41,
+      "intro": ""
+    },
+    {
+      "title": "15 Talking about your family",
+      "start": 42,
+      "end": 43,
+      "intro": ""
+    },
+    {
+      "title": "16 Life events",
+      "start": 44,
+      "end": 45,
+      "intro": ""
+    },
+    {
+      "title": "17 Socializing",
+      "start": 46,
+      "end": 47,
+      "intro": ""
+    },
+    {
+      "title": "18 Dating and relationships",
+      "start": 48,
+      "end": 51,
+      "intro": ""
+    },
+    {
+      "title": "19 Offering sympathy",
+      "start": 52,
+      "end": 53,
+      "intro": ""
+    },
+    {
+      "title": "20 Food and drink",
+      "start": 54,
+      "end": 55,
+      "intro": ""
+    },
+    {
+      "title": "21 In a café",
+      "start": 56,
+      "end": 57,
+      "intro": ""
+    },
+    {
+      "title": "22 Takeout and delivery",
+      "start": 58,
+      "end": 59,
+      "intro": ""
+    },
+    {
+      "title": "23 In a bar",
+      "start": 60,
+      "end": 61,
+      "intro": ""
+    },
+    {
+      "title": "24 At a restaurant",
+      "start": 62,
+      "end": 65,
+      "intro": ""
+    },
+    {
+      "title": "25 Cooking and eating",
+      "start": 66,
+      "end": 69,
+      "intro": ""
+    },
+    {
+      "title": "26 Leisure and hobbies",
+      "start": 70,
+      "end": 71,
+      "intro": ""
+    },
+    {
+      "title": "27 At the movies",
+      "start": 72,
+      "end": 73,
+      "intro": ""
+    },
+    {
+      "title": "28 At the theater",
+      "start": 74,
+      "end": 75,
+      "intro": ""
+    },
+    {
+      "title": "29 Concerts and festivals",
+      "start": 76,
+      "end": 77,
+      "intro": ""
+    },
+    {
+      "title": "30 At the gym",
+      "start": 78,
+      "end": 79,
+      "intro": ""
+    },
+    {
+      "title": "31 Playing sports",
+      "start": 80,
+      "end": 81,
+      "intro": ""
+    },
+    {
+      "title": "32 Watching sports",
+      "start": 82,
+      "end": 83,
+      "intro": ""
+    },
+    {
+      "title": "33 Hobbies",
+      "start": 84,
+      "end": 85,
+      "intro": ""
+    },
+    {
+      "title": "34 Stores and services",
+      "start": 86,
+      "end": 87,
+      "intro": ""
+    },
+    {
+      "title": "35 At the market",
+      "start": 88,
+      "end": 89,
+      "intro": ""
+    },
+    {
+      "title": "36 At the supermarket",
+      "start": 90,
+      "end": 93,
+      "intro": ""
+    },
+    {
+      "title": "37 At the garden center",
+      "start": 94,
+      "end": 95,
+      "intro": ""
+    },
+    {
+      "title": "38 At the hardware store",
+      "start": 96,
+      "end": 97,
+      "intro": ""
+    },
+    {
+      "title": "39 Buying clothes and shoes",
+      "start": 98,
+      "end": 99,
+      "intro": ""
+    },
+    {
+      "title": "40 Returning items",
+      "start": 100,
+      "end": 101,
+      "intro": ""
+    },
+    {
+      "title": "41 Hair and beauty",
+      "start": 102,
+      "end": 105,
+      "intro": ""
+    },
+    {
+      "title": "42 Mail and shipping",
+      "start": 106,
+      "end": 107,
+      "intro": ""
+    },
+    {
+      "title": "43 Money and banking",
+      "start": 108,
+      "end": 111,
+      "intro": ""
+    },
+    {
+      "title": "44 At the library",
+      "start": 112,
+      "end": 113,
+      "intro": ""
+    },
+    {
+      "title": "45 Work and education",
+      "start": 114,
+      "end": 115,
+      "intro": ""
+    },
+    {
+      "title": "46 At school",
+      "start": 116,
+      "end": 117,
+      "intro": ""
+    },
+    {
+      "title": "47 Further education",
+      "start": 118,
+      "end": 123,
+      "intro": ""
+    },
+    {
+      "title": "48 Looking for a job",
+      "start": 124,
+      "end": 125,
+      "intro": ""
+    },
+    {
+      "title": "49 Applying for a job",
+      "start": 126,
+      "end": 127,
+      "intro": ""
+    },
+    {
+      "title": "50 Job interviews",
+      "start": 128,
+      "end": 129,
+      "intro": ""
+    },
+    {
+      "title": "51 Starting a new job",
+      "start": 130,
+      "end": 131,
+      "intro": ""
+    },
+    {
+      "title": "52 At work",
+      "start": 132,
+      "end": 133,
+      "intro": ""
+    },
+    {
+      "title": "53 Giving a presentation",
+      "start": 134,
+      "end": 135,
+      "intro": ""
+    },
+    {
+      "title": "54 Work meetings",
+      "start": 136,
+      "end": 139,
+      "intro": ""
+    },
+    {
+      "title": "55 Online meetings",
+      "start": 140,
+      "end": 141,
+      "intro": ""
+    },
+    {
+      "title": "56 Home and living",
+      "start": 142,
+      "end": 143,
+      "intro": ""
+    },
+    {
+      "title": "57 Finding somewhere to live",
+      "start": 144,
+      "end": 147,
+      "intro": ""
+    },
+    {
+      "title": "58 Moving home",
+      "start": 148,
+      "end": 149,
+      "intro": ""
+    },
+    {
+      "title": "59 Meeting your neighbors",
+      "start": 150,
+      "end": 151,
+      "intro": ""
+    },
+    {
+      "title": "60 Household chores",
+      "start": 152,
+      "end": 153,
+      "intro": ""
+    },
+    {
+      "title": "61 Home improvements",
+      "start": 154,
+      "end": 155,
+      "intro": ""
+    },
+    {
+      "title": "62 Pets",
+      "start": 156,
+      "end": 157,
+      "intro": ""
+    },
+    {
+      "title": "63 Home emergencies",
+      "start": 158,
+      "end": 159,
+      "intro": ""
+    },
+    {
+      "title": "64 Entertaining at home",
+      "start": 160,
+      "end": 161,
+      "intro": ""
+    },
+    {
+      "title": "65 Getting around town",
+      "start": 162,
+      "end": 163,
+      "intro": ""
+    },
+    {
+      "title": "66 Buses and coaches",
+      "start": 164,
+      "end": 165,
+      "intro": ""
+    },
+    {
+      "title": "67 Trains and the subway",
+      "start": 166,
+      "end": 169,
+      "intro": ""
+    },
+    {
+      "title": "68 At the airport",
+      "start": 170,
+      "end": 175,
+      "intro": ""
+    },
+    {
+      "title": "69 Cycling",
+      "start": 176,
+      "end": 177,
+      "intro": ""
+    },
+    {
+      "title": "70 Taxis",
+      "start": 178,
+      "end": 179,
+      "intro": ""
+    },
+    {
+      "title": "71 At the auto repair shop",
+      "start": 180,
+      "end": 181,
+      "intro": ""
+    },
+    {
+      "title": "72 Vacations",
+      "start": 182,
+      "end": 183,
+      "intro": ""
+    },
+    {
+      "title": "73 Booking a vacation",
+      "start": 184,
+      "end": 185,
+      "intro": ""
+    },
+    {
+      "title": "74 At a hotel",
+      "start": 186,
+      "end": 191,
+      "intro": ""
+    },
+    {
+      "title": "75 Sightseeing",
+      "start": 192,
+      "end": 193,
+      "intro": ""
+    },
+    {
+      "title": "76 Camping",
+      "start": 194,
+      "end": 195,
+      "intro": ""
+    },
+    {
+      "title": "77 At the beach",
+      "start": 196,
+      "end": 197,
+      "intro": ""
+    },
+    {
+      "title": "78 Asking for directions",
+      "start": 198,
+      "end": 199,
+      "intro": ""
+    },
+    {
+      "title": "79 Travel problems",
+      "start": 200,
+      "end": 201,
+      "intro": ""
+    },
+    {
+      "title": "80 Health and medicine",
+      "start": 202,
+      "end": 203,
+      "intro": ""
+    },
+    {
+      "title": "81 At the pharmacy",
+      "start": 204,
+      "end": 207,
+      "intro": ""
+    },
+    {
+      "title": "82 Making an appointment",
+      "start": 208,
+      "end": 209,
+      "intro": ""
+    },
+    {
+      "title": "83 Seeing a doctor",
+      "start": 210,
+      "end": 211,
+      "intro": ""
+    },
+    {
+      "title": "84 Injuries and emergencies",
+      "start": 212,
+      "end": 213,
+      "intro": ""
+    },
+    {
+      "title": "85 At the hospital",
+      "start": 214,
+      "end": 217,
+      "intro": ""
+    },
+    {
+      "title": "86 Dental care",
+      "start": 218,
+      "end": 219,
+      "intro": ""
+    },
+    {
+      "title": "87 Mental health and support",
+      "start": 220,
+      "end": 221,
+      "intro": ""
+    },
+    {
+      "title": "88 Information and technology",
+      "start": 222,
+      "end": 223,
+      "intro": ""
+    },
+    {
+      "title": "89 Formal phone calls",
+      "start": 224,
+      "end": 225,
+      "intro": ""
+    },
+    {
+      "title": "90 Informal phone calls",
+      "start": 226,
+      "end": 227,
+      "intro": ""
+    },
+    {
+      "title": "91 Using the internet",
+      "start": 228,
+      "end": 231,
+      "intro": ""
+    },
+    {
+      "title": "92 Tech problems",
+      "start": 232,
+      "end": 233,
+      "intro": ""
+    },
+    {
+      "title": "93 Emails",
+      "start": 234,
+      "end": 235,
+      "intro": ""
+    },
+    {
+      "title": "94 Messaging and video calls",
+      "start": 236,
+      "end": 237,
+      "intro": ""
+    },
+    {
+      "title": "95 Social media",
+      "start": 238,
+      "end": 239,
+      "intro": ""
+    },
+    {
+      "title": "96 Reading books",
+      "start": 240,
+      "end": 241,
+      "intro": ""
+    },
+    {
+      "title": "Answers",
+      "start": 242,
+      "end": 255,
+      "intro": ""
+    },
+    {
+      "title": "Index",
+      "start": 256,
+      "end": 257,
+      "intro": ""
+    },
+    {
+      "title": "Acknowledgments",
+      "start": 258,
+      "end": 258,
+      "intro": ""
+    }
+  ]
+},
+{
+  "id": 19,
+  "name": "Teacher's Guide",
+  "subtitle": "Classroom activities & teaching notes",
+  "description": "Complete guide to teaching English for Everyone exercises, classroom activities, and audio transcripts.",
+  "total": 130,
+  "units": [
+    {
+      "title": "Contents",
+      "start": 7,
+      "end": 11,
+      "intro": ""
+    },
+    {
+      "title": "About English for Everyone",
+      "start": 12,
+      "end": 12,
+      "intro": ""
+    },
+    {
+      "title": "Business English",
+      "start": 13,
+      "end": 13,
+      "intro": ""
+    },
+    {
+      "title": "Course book language",
+      "start": 14,
+      "end": 14,
+      "intro": ""
+    },
+    {
+      "title": "Course book exercises",
+      "start": 15,
+      "end": 15,
+      "intro": ""
+    },
+    {
+      "title": "Audio and transcripts",
+      "start": 16,
+      "end": 16,
+      "intro": ""
+    },
+    {
+      "title": "Using the course and practice books together",
+      "start": 17,
+      "end": 17,
+      "intro": ""
+    },
+    {
+      "title": "Vocabulary building and skills testing",
+      "start": 18,
+      "end": 18,
+      "intro": ""
+    },
+    {
+      "title": "Digital exercises and progress tracking",
+      "start": 19,
+      "end": 19,
+      "intro": ""
+    },
+    {
+      "title": "Additional reference guides",
+      "start": 20,
+      "end": 21,
+      "intro": ""
+    },
+    {
+      "title": "Teaching grammar",
+      "start": 22,
+      "end": 22,
+      "intro": ""
+    },
+    {
+      "title": "Practicing grammar",
+      "start": 23,
+      "end": 23,
+      "intro": ""
+    },
+    {
+      "title": "Choosing the correct word or sentence",
+      "start": 24,
+      "end": 24,
+      "intro": ""
+    },
+    {
+      "title": "Correcting errors",
+      "start": 25,
+      "end": 25,
+      "intro": ""
+    },
+    {
+      "title": "Filling in the gaps",
+      "start": 26,
+      "end": 26,
+      "intro": ""
+    },
+    {
+      "title": "Filling in the gaps with tenses",
+      "start": 27,
+      "end": 27,
+      "intro": ""
+    },
+    {
+      "title": "Putting words in the correct order",
+      "start": 28,
+      "end": 28,
+      "intro": ""
+    },
+    {
+      "title": "Writing a sentence another way",
+      "start": 29,
+      "end": 29,
+      "intro": ""
+    },
+    {
+      "title": "Sorting words into categories",
+      "start": 30,
+      "end": 30,
+      "intro": ""
+    },
+    {
+      "title": "Matching beginnings and endings of sentences",
+      "start": 31,
+      "end": 31,
+      "intro": ""
+    },
+    {
+      "title": "Understanding target grammar",
+      "start": 32,
+      "end": 32,
+      "intro": ""
+    },
+    {
+      "title": "Choosing the best sentence",
+      "start": 33,
+      "end": 33,
+      "intro": ""
+    },
+    {
+      "title": "Everyday English",
+      "start": 34,
+      "end": 34,
+      "intro": ""
+    },
+    {
+      "title": "Business English",
+      "start": 35,
+      "end": 35,
+      "intro": ""
+    },
+    {
+      "title": "Teaching vocabulary",
+      "start": 36,
+      "end": 36,
+      "intro": ""
+    },
+    {
+      "title": "Writing the correct word for a picture",
+      "start": 37,
+      "end": 37,
+      "intro": ""
+    },
+    {
+      "title": "Writing the correct expression",
+      "start": 38,
+      "end": 38,
+      "intro": ""
+    },
+    {
+      "title": "Matching words or sentences to pictures",
+      "start": 39,
+      "end": 39,
+      "intro": ""
+    },
+    {
+      "title": "Choosing the correct word or sentence",
+      "start": 40,
+      "end": 40,
+      "intro": ""
+    },
+    {
+      "title": "Matching words and definitions",
+      "start": 41,
+      "end": 41,
+      "intro": ""
+    },
+    {
+      "title": "Filling in the gaps",
+      "start": 42,
+      "end": 42,
+      "intro": ""
+    },
+    {
+      "title": "Sorting words into categories",
+      "start": 43,
+      "end": 43,
+      "intro": ""
+    },
+    {
+      "title": "Correcting errors",
+      "start": 44,
+      "end": 44,
+      "intro": ""
+    },
+    {
+      "title": "Matching halves of sentences",
+      "start": 45,
+      "end": 45,
+      "intro": ""
+    },
+    {
+      "title": "Matching words to their opposites",
+      "start": 46,
+      "end": 46,
+      "intro": ""
+    },
+    {
+      "title": "Vocabulary puzzles",
+      "start": 47,
+      "end": 47,
+      "intro": ""
+    },
+    {
+      "title": "Finding target vocabulary in a text",
+      "start": 48,
+      "end": 48,
+      "intro": ""
+    },
+    {
+      "title": "Teaching reading",
+      "start": 49,
+      "end": 49,
+      "intro": ""
+    },
+    {
+      "title": "Choosing the correct answer to a question",
+      "start": 50,
+      "end": 50,
+      "intro": ""
+    },
+    {
+      "title": "Answering questions as full sentences",
+      "start": 51,
+      "end": 51,
+      "intro": ""
+    },
+    {
+      "title": "Putting pictures or sentences in order",
+      "start": 52,
+      "end": 52,
+      "intro": ""
+    },
+    {
+      "title": "Marking the correct summary of a text",
+      "start": 53,
+      "end": 53,
+      "intro": ""
+    },
+    {
+      "title": "Teaching listening",
+      "start": 54,
+      "end": 54,
+      "intro": ""
+    },
+    {
+      "title": "Choosing the correct answer to a question",
+      "start": 55,
+      "end": 55,
+      "intro": ""
+    },
+    {
+      "title": "Answering questions as full sentences",
+      "start": 56,
+      "end": 56,
+      "intro": ""
+    },
+    {
+      "title": "Putting pictures or sentences in order",
+      "start": 57,
+      "end": 57,
+      "intro": ""
+    },
+    {
+      "title": "Marking the correct summary",
+      "start": 58,
+      "end": 58,
+      "intro": ""
+    },
+    {
+      "title": "Listening for target language",
+      "start": 59,
+      "end": 59,
+      "intro": ""
+    },
+    {
+      "title": "Listening for stress or intonation",
+      "start": 60,
+      "end": 60,
+      "intro": ""
+    },
+    {
+      "title": "Taking notes",
+      "start": 61,
+      "end": 61,
+      "intro": ""
+    },
+    {
+      "title": "Teaching speaking",
+      "start": 62,
+      "end": 62,
+      "intro": ""
+    },
+    {
+      "title": "Speaking correct English out loud",
+      "start": 63,
+      "end": 63,
+      "intro": ""
+    },
+    {
+      "title": "Using a chart to create sentences",
+      "start": 64,
+      "end": 64,
+      "intro": ""
+    },
+    {
+      "title": "Describing a picture",
+      "start": 65,
+      "end": 65,
+      "intro": ""
+    },
+    {
+      "title": "Describing an infographic",
+      "start": 66,
+      "end": 66,
+      "intro": ""
+    },
+    {
+      "title": "Answering questions on a passage of text",
+      "start": 67,
+      "end": 67,
+      "intro": ""
+    },
+    {
+      "title": "Responding out loud to audio",
+      "start": 68,
+      "end": 68,
+      "intro": ""
+    },
+    {
+      "title": "Pronunciation and intonation exercises",
+      "start": 69,
+      "end": 69,
+      "intro": ""
+    },
+    {
+      "title": "Emphasizing the correct word",
+      "start": 70,
+      "end": 70,
+      "intro": ""
+    },
+    {
+      "title": "Transcripts of listening exercises",
+      "start": 71,
+      "end": 130,
+      "intro": ""
+    }
+  ]
+}
 ];
 books.push(...vocabularyBooks);

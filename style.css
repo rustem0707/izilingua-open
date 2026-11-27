@@ -318,6 +318,7 @@ nav a.on { color: var(--forest); border-bottom-color: var(--forest); font-weight
   text-align: center;
 }
 .cover-pair img, .vocabulary-covers img { box-shadow: 2px 4px 10px rgba(21, 37, 29, 0.2); }
+.vocabulary-covers.single-cover { grid-template-columns: minmax(0, 126px); justify-content: center; }
 .cover-pair span { display: block; margin-top: 7px; font-size: 12px; font-weight: 700; }
 
 .cardbody, .panel { padding: 20px; }
